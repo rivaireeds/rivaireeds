@@ -1,170 +1,53 @@
-/* 기본 테마 및 레이아웃 설정 (다크 모드 주식 대시보드) */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: apple-system, BlinkMacSystemFont, "Malgun Gothic", sans-serif; background-color: #090d16; color: #f1f5f9; }
 
-body {
-    font-family: 'Malgun Gothic', apple-system, sans-serif;
-    background-color: #0b0e14;
-    color: #e2e8f0;
-    line-height: 1.6;
-    padding-bottom: 60px;
-}
+/* 레이아웃 */
+.app-container { display: flex; min-height: 100vh; }
+.sidebar { width: 240px; background-color: #111827; padding: 20px; border-right: 1px solid #1f2937; }
+.logo { font-size: 20px; font-weight: bold; color: #38bdf8; margin-bottom: 30px; text-align: center; }
+nav { display: flex; flex-direction: column; gap: 8px; }
+.nav-item { background: none; border: none; text-align: left; padding: 12px 16px; color: #9ca3af; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s; }
+.nav-item:hover, .nav-item.active { background-color: #1f2937; color: #ffffff; }
+.nav-item.active { border-left: 4px solid #38bdf8; }
 
-header {
-    background-color: #111622;
-    text-align: center;
-    padding: 30px 20px;
-    border-bottom: 1px solid #1e293b;
-}
+.main-content { flex: 1; padding: 4px 30px; }
+.content-header { padding: 30px 0; border-bottom: 1px solid #1f2937; margin-bottom: 30px; }
+.content-header h1 { font-size: 24px; margin-bottom: 5px; }
+.content-header p { color: #6b7280; font-size: 14px; }
 
-header h1 {
-    font-size: 24px;
-    color: #f8fafc;
-    margin-bottom: 8px;
-}
+/* 종목 그리드 및 카드 */
+.content-body { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+.stock-card { background-color: #111827; border: 1px solid #1f2937; border-radius: 12px; padding: 20px; cursor: pointer; transition: transform 0.2s, border-color 0.2s; }
+.stock-card:hover { transform: translateY(-4px); border-color: #38bdf8; }
+.card-header { display: flex; justify-content: space-between; margin-bottom: 15px; }
+.stock-name { font-size: 18px; font-weight: bold; }
+.stock-ticker { font-size: 12px; color: #6b7280; background-color: #1f2937; padding: 2px 6px; border-radius: 4px; }
+.card-price-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.stock-price { font-size: 16px; font-weight: 600; }
 
-header p {
-    color: #94a3b8;
-    font-size: 14px;
-}
+/* 신호 배지 */
+.signal-badge { padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; }
+.signal-badge.buy { background-color: #ef4444; color: #fff; }
+.signal-badge.hold { background-color: #4b5563; color: #d1d5db; }
+.tech-badge { color: #38bdf8; font-size: 13px; font-weight: 500; }
+.empty-msg { grid-column: 1 / -1; text-align: center; color: #4b5563; padding: 40px 0; }
 
-.container {
-    max-width: 1200px;
-    margin: 30px auto;
-    padding: 0 20px;
-}
+/* 뉴스 스타일 */
+.news-item { grid-column: 1 / -1; background-color: #111827; padding: 15px 20px; border-radius: 8px; border: 1px solid #1f2937; display: flex; gap: 15px; align-items: center; }
+.news-cat { color: #38bdf8; font-weight: bold; font-size: 14px; min-width: 80px; }
+.news-title { flex: 1; font-size: 15px; }
+.news-time { color: #4b5563; font-size: 12px; }
 
-/* 필터 버튼 스타일 */
-.filter-container {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 25px;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-.filter-btn {
-    background-color: #1e293b;
-    color: #94a3b8;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: all 0.2s ease;
-}
-
-.filter-btn:hover, .filter-btn.active {
-    background-color: #3b82f6;
-    color: #ffffff;
-}
-
-/* 주식 카드 그리드 */
-.stock-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
-}
-
-/* 개별 종목 카드 */
-.stock-card {
-    background-color: #141b29;
-    border: 1px solid #1e293b;
-    border-radius: 12px;
-    padding: 20px;
-    transition: transform 0.2s ease, border-color 0.2s ease;
-}
-
-.stock-card:hover {
-    transform: translateY(-4px);
-    border-color: #3b82f6;
-}
-
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 12px;
-}
-
-.stock-name {
-    font-size: 18px;
-    font-weight: bold;
-    color: #ffffff;
-}
-
-.stock-ticker {
-    font-size: 12px;
-    color: #64748b;
-    background-color: #1e293b;
-    padding: 2px 6px;
-    border-radius: 4px;
-}
-
-.card-body {
-    margin-bottom: 15px;
-}
-
-.price-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.stock-price {
-    font-size: 20px;
-    font-weight: bold;
-}
-
-/* 매매 신호 배지 (매수 빨강 / 매도 파랑) */
-.signal-badge {
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: bold;
-}
-
-.signal-badge.buy {
-    background-color: #ef4444;
-    color: #ffffff;
-}
-
-.signal-badge.sell {
-    background-color: #3b82f6;
-    color: #ffffff;
-}
-
-.signal-badge.hold {
-    background-color: #475569;
-    color: #cbd5e1;
-}
-
-/* 카드 하단 */
-.card-footer {
-    border-top: 1px solid #1e293b;
-    padding-top: 12px;
-    font-size: 13px;
-}
-
-.technique-tag {
-    color: #38bdf8;
-    margin-bottom: 4px;
-    font-weight: 500;
-}
-
-.reason-text {
-    color: #94a3b8;
-    font-size: 12px;
-}
-
-footer {
-    text-align: center;
-    color: #475569;
-    font-size: 12px;
-    margin-top: 40px;
-    padding: 20px 0;
-}
+/* 상세 페이지 전용 */
+.stock-detail-container { max-width: 600px; margin: 60px auto; padding: 0 20px; }
+.btn-back { background: #1f2937; border: none; color: #fff; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-bottom: 20px; }
+.detail-card { background-color: #111827; border: 1px solid #1f2937; border-radius: 16px; padding: 30px; }
+.detail-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1f2937; padding-bottom: 15px; margin-bottom: 20px; }
+.ticker-badge { font-size: 14px; background: #1f2937; padding: 4px 10px; border-radius: 6px; color: #9ca3af; }
+.info-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #1f2937; }
+.info-row span { color: #6b7280; }
+.detail-reason { margin-top: 25px; }
+.detail-reason h3 { font-size: 16px; margin-bottom: 10px; color: #f3f4f6; }
+.detail-reason p { color: #9ca3af; font-size: 14px; line-height: 1.6; }
+.signal-text.buy { color: #ef4444; font-weight: bold; }
+.signal-text.hold { color: #9ca3af; font-weight: bold; }
