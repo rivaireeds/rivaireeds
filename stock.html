@@ -3,63 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>종목 상세 정보</title>
+    <title>AI Stock Signal - 상세분석</title>
     <link rel="stylesheet" href="css/style.css">
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <style>
+        .detail-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-top: 24px; }
+        .chart-container { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; height: 500px; overflow: hidden; }
+        .info-panel { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+        .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .metric-item { background: #1c2230; padding: 12px; border-radius: 8px; }
+        .metric-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+        .metric-value { font-size: 16px; font-weight: 700; }
+        .news-list { display: flex; flex-direction: column; gap: 12px; list-style: none; }
+        .news-item { border-bottom: 1px solid var(--border-color); padding-bottom: 8px; }
+        .news-item a { color: var(--text-primary); text-decoration: none; font-size: 14px; }
+        @media (max-width: 1024px) { .detail-layout { grid-template-columns: 1fr; } }
+    </style>
 </head>
 <body>
-    <div class="stock-detail-container">
-        <button class="btn-back" onclick="history.back()">← 뒤로가기</button>
-        <div class="detail-card">
-            <div class="detail-header">
-                <h1 id="detail-name">로딩 중...</h1>
-                <span id="detail-ticker" class="ticker-badge">-</span>
+    <div class="app-container">
+        <aside class="sidebar">
+            <a href="index.html" class="brand-title">AI Stock Signal</a>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="index.html">📈 Dashboard</a></li>
+                <li class="nav-item"><a href="#">🇰🇷 국내주식</a></li>
+                <li class="nav-item"><a href="#">🇺🇸 미국주식</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <header>
+                <h1 id="stockName">--</h1>
+                <div style="margin-top: 4px;">
+                    <span id="stockTicker" class="card-ticker">--</span>
+                    <span id="stockPrice" style="font-size: 20px; font-weight: 700; margin-left: 12px;">--</span>
+                    <span id="stockChange" style="margin-left: 8px;">--</span>
+                </div>
+            </header>
+
+            <div class="detail-layout">
+                <section class="chart-container" id="tvChartWidgetContainer">
+                    </section>
+
+                <section class="info-panel">
+                    <h2>AI 매분석 신호</h2>
+                    <div class="metric-grid">
+                        <div class="metric-item">
+                            <div class="metric-label">AI 종합 점수</div>
+                            <div class="metric-value" id="aiScore">--</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">매매 신호</div>
+                            <div class="metric-value" id="aiSignal">--</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">목표가</div>
+                            <div class="metric-value" id="targetPrice">--</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">손절가</div>
+                            <div class="metric-value" id="stopLossPrice">--</div>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-top:12px;">관련 최신 뉴스</h3>
+                    <ul class="news-list" id="stockNewsContainer">
+                        </ul>
+                </section>
             </div>
-            <div class="detail-info">
-                <div class="info-row"><span>현재가</span><strong id="detail-price">-</strong></div>
-                <div class="info-row"><span>전일대비</span><strong id="detail-change">-</strong></div>
-                <div class="info-row"><span>적용기법</span><strong id="detail-technique" style="color:#38bdf8;">-</strong></div>
-                <div class="info-row"><span>신호상태</span><strong id="detail-signal">-</strong></div>
-            </div>
-            <div class="detail-reason">
-                <h3>💡 포착 사유 및 대응 전략</h3>
-                <p id="detail-reason">데이터를 불러오는 중입니다...</p>
-            </div>
-        </div>
+        </main>
     </div>
 
-    <script>
-        // URL에서 ?ticker=XXXX 값을 추출하는 로직
-        const urlParams = new URLSearchParams(window.location.search);
-        const ticker = urlParams.get('ticker');
-
-        if (ticker) {
-            // 두 개의 JSON 데이터를 동시에 원격 패치(Fetch)하여 결합
-            Promise.all([
-                fetch('api/stocks.json').then(res => res.json()),
-                fetch('api/signals.json').then(res => res.json())
-            ]).then(([stockRes, signalRes]) => {
-                const stockInfo = stockRes.stocks[ticker];
-                const signalInfo = signalRes.signals.find(s => s.ticker === ticker);
-
-                if (stockInfo) {
-                    document.getElementById('detail-name').innerText = stockInfo.name;
-                    document.getElementById('detail-ticker').innerText = ticker;
-                    document.getElementById('detail-price').innerText = stockInfo.price;
-                    document.getElementById('detail-change').innerText = stockInfo.change;
-                    
-                    if(signalInfo) {
-                        document.getElementById('detail-technique').innerText = signalInfo.technique;
-                        document.getElementById('detail-reason').innerText = signalInfo.reason;
-                        
-                        const sigBadge = document.getElementById('detail-signal');
-                        sigBadge.innerText = signalInfo.signal.toUpperCase();
-                        sigBadge.className = `signal-text ${signalInfo.signal}`;
-                    }
-                } else {
-                    document.getElementById('detail-name').innerText = "종목 정보를 찾을 수 없습니다.";
-                }
-            }).catch(err => console.error("데이터 로드 실패:", err));
-        }
-    </script>
+    <script type="module" src="js/detail.js"></script>
 </body>
 </html>
