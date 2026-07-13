@@ -1,4 +1,4 @@
-// js/dashboard.js
+js/dashboard.js
 import { fetchStockData, formatCurrency } from './api.js';
 
 let localCacheData = {};
