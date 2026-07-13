@@ -1,4 +1,4 @@
-// js/api.js
+js/api.js
 export async function fetchStockData() {
     try {
         const [stocksRes, quotesRes, signalsRes, newsRes] = await Promise.all([
