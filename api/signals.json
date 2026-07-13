@@ -1,33 +1,37 @@
-{
-  "last_updated": "2026-07-13",
-  "signals": [
-    {
-      "ticker": "005930",
-      "market": "domestic",
-      "signal": "buy",
-      "technique": "공구리 돌파",
-      "reason": "강한 거래량 유입과 함께 주요 매물대 상단 돌파 및 지지 안착 확인"
-    },
-    {
-      "ticker": "451760",
-      "market": "domestic",
-      "signal": "buy",
-      "technique": "눌림목 매매",
-      "reason": "우주항공 테마 수급 강세 속 직전 고점 돌파 후 거래량 감소하며 조정 양호"
-    },
-    {
-      "ticker": "NVDA",
-      "market": "global",
-      "signal": "buy",
-      "technique": "눌림목 매매",
-      "reason": "AI 대장주로서 단기 이평선 지지선 부근 거래량 바닥 확인 후 반등 시그널"
-    },
-    {
-      "ticker": "000660",
-      "market": "domestic",
-      "signal": "hold",
-      "technique": "관망",
-      "reason": "반도체 섹터 전반의 숨고르기 국면으로 경기선 지지 여부 재확인 필요"
-    }
-  ]
-}
+[
+  {
+    "ticker": "005930",
+    "score": 50,
+    "signal": "★★☆☆☆ 관망",
+    "target": 292675,
+    "stop": 234140
+  },
+  {
+    "ticker": "000660",
+    "score": 50,
+    "signal": "★★☆☆☆ 관망",
+    "target": 2121750,
+    "stop": 1697400
+  },
+  {
+    "ticker": "451760",
+    "score": 65,
+    "signal": "★★★☆☆ 관심",
+    "target": 8832,
+    "stop": 7065
+  },
+  {
+    "ticker": "NVDA",
+    "score": 70,
+    "signal": "★★★★☆ 매수",
+    "target": 242.6,
+    "stop": 194.08
+  },
+  {
+    "ticker": "AAPL",
+    "score": 70,
+    "signal": "★★★★☆ 매수",
+    "target": 362.62,
+    "stop": 290.09
+  }
+]

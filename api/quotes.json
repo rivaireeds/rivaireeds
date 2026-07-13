@@ -1,0 +1,37 @@
+[
+  {
+    "ticker": "005930",
+    "price": 254500,
+    "change": -30500,
+    "percent": -10.7,
+    "volume": 31882652
+  },
+  {
+    "ticker": "000660",
+    "price": 1845000,
+    "change": -335000,
+    "percent": -15.37,
+    "volume": 8537366
+  },
+  {
+    "ticker": "451760",
+    "price": 7680,
+    "change": -970,
+    "percent": -11.21,
+    "volume": 183948
+  },
+  {
+    "ticker": "NVDA",
+    "price": 210.96,
+    "change": 8.18,
+    "percent": 4.03,
+    "volume": 148124000
+  },
+  {
+    "ticker": "AAPL",
+    "price": 315.32,
+    "change": -0.9,
+    "percent": -0.28,
+    "volume": 34109200
+  }
+]
