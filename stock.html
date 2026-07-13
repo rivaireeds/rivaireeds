@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>종목 상세 정보</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="stock-detail-container">
+        <button class="btn-back" onclick="history.back()">← 뒤로가기</button>
+        <div class="detail-card">
+            <div class="detail-header">
+                <h1 id="detail-name">로딩 중...</h1>
+                <span id="detail-ticker" class="ticker-badge">-</span>
+            </div>
+            <div class="detail-info">
+                <div class="info-row"><span>현재가</span><strong id="detail-price">-</strong></div>
+                <div class="info-row"><span>전일대비</span><strong id="detail-change">-</strong></div>
+                <div class="info-row"><span>적용기법</span><strong id="detail-technique" style="color:#38bdf8;">-</strong></div>
+                <div class="info-row"><span>신호상태</span><strong id="detail-signal">-</strong></div>
+            </div>
+            <div class="detail-reason">
+                <h3>💡 포착 사유 및 대응 전략</h3>
+                <p id="detail-reason">데이터를 불러오는 중입니다...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // URL에서 ?ticker=XXXX 값을 추출하는 로직
+        const urlParams = new URLSearchParams(window.location.search);
+        const ticker = urlParams.get('ticker');
+
+        if (ticker) {
+            // 두 개의 JSON 데이터를 동시에 원격 패치(Fetch)하여 결합
+            Promise.all([
+                fetch('api/stocks.json').then(res => res.json()),
+                fetch('api/signals.json').then(res => res.json())
+            ]).then(([stockRes, signalRes]) => {
+                const stockInfo = stockRes.stocks[ticker];
+                const signalInfo = signalRes.signals.find(s => s.ticker === ticker);
+
+                if (stockInfo) {
+                    document.getElementById('detail-name').innerText = stockInfo.name;
+                    document.getElementById('detail-ticker').innerText = ticker;
+                    document.getElementById('detail-price').innerText = stockInfo.price;
+                    document.getElementById('detail-change').innerText = stockInfo.change;
+                    
+                    if(signalInfo) {
+                        document.getElementById('detail-technique').innerText = signalInfo.technique;
+                        document.getElementById('detail-reason').innerText = signalInfo.reason;
+                        
+                        const sigBadge = document.getElementById('detail-signal');
+                        sigBadge.innerText = signalInfo.signal.toUpperCase();
+                        sigBadge.className = `signal-text ${signalInfo.signal}`;
+                    }
+                } else {
+                    document.getElementById('detail-name').innerText = "종목 정보를 찾을 수 없습니다.";
+                }
+            }).catch(err => console.error("데이터 로드 실패:", err));
+        }
+    </script>
+</body>
+</html>
