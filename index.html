@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>테마주 매매 신호 대시보드</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>📈 테마주 매매 신호 대시보드</h1>
+        <p>반도체 · 우주항공 · AI 필수 테마 및 당일 수급 분석</p>
+    </header>
+
+    <main class="container">
+        <div class="filter-container">
+            <button class="filter-btn active" onclick="filterSector('all')">전체보기</button>
+            <button class="filter-btn" onclick="filterSector('semiconductor')">반도체</button>
+            <button class="filter-btn" onclick="filterSector('space')">우주항공</button>
+            <button class="filter-btn" onclick="filterSector('ai')">인공지능(AI)</button>
+        </div>
+
+        <div class="stock-grid" id="stockGrid">
+            </div>
+    </main>
+
+    <footer>
+        <p>© 2026 주식 매매 신호 시스템. All rights reserved.</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
