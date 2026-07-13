@@ -1,0 +1,27 @@
+{
+  "date": "2026-07-13",
+  "signals": [
+    {
+      "ticker": "005930",
+      "name": "삼성전자",
+      "market": "국내주식",
+      "sector": "반도체",
+      "technique": "눌림목 매매",
+      "supply_demand_score": 85,
+      "recommendation_rank": 1,
+      "price_current": 87000,
+      "watch_reason": "외국인/기관 양매수 유입 및 중기 이평선 지지 확인"
+    },
+    {
+      "ticker": "451760",
+      "name": "컨텍",
+      "market": "국내주식",
+      "sector": "우주",
+      "technique": "공구리 돌파",
+      "supply_demand_score": 92,
+      "recommendation_rank": 2,
+      "price_current": 15200,
+      "watch_reason": "전고점 매물대 소화 후 대량 거래량 동반 돌파"
+    }
+  ]
+}
