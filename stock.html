@@ -15,8 +15,7 @@
         .metric-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
         .metric-value { font-size: 16px; font-weight: 700; }
         .news-list { display: flex; flex-direction: column; gap: 12px; list-style: none; }
-        .news-item { border-bottom: 1px solid var(--border-color); padding-bottom: 8px; }
-        .news-item a { color: var(--text-primary); text-decoration: none; font-size: 14px; }
+        .news-item { border-bottom: 1px solid var(--border-color); padding-bottom: 8px; font-size: 14px; }
         @media (max-width: 1024px) { .detail-layout { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -26,54 +25,36 @@
             <a href="index.html" class="brand-title">AI Stock Signal</a>
             <ul class="nav-menu">
                 <li class="nav-item"><a href="index.html">📈 Dashboard</a></li>
-                <li class="nav-item"><a href="#">🇰🇷 국내주식</a></li>
-                <li class="nav-item"><a href="#">🇺🇸 미국주식</a></li>
             </ul>
         </aside>
 
         <main class="main-content">
             <header>
                 <h1 id="stockName">--</h1>
-                <div style="margin-top: 4px;">
+                <div style="margin-top: 8px;">
                     <span id="stockTicker" class="card-ticker">--</span>
-                    <span id="stockPrice" style="font-size: 20px; font-weight: 700; margin-left: 12px;">--</span>
-                    <span id="stockChange" style="margin-left: 8px;">--</span>
+                    <span id="stockPrice" style="font-size: 24px; font-weight: 700; margin-left: 12px;">--</span>
+                    <span id="stockChange" style="margin-left: 8px; font-weight: 500;">--</span>
                 </div>
             </header>
 
             <div class="detail-layout">
-                <section class="chart-container" id="tvChartWidgetContainer">
-                    </section>
-
+                <section class="chart-container" id="tvChartWidgetContainer"></section>
+                
                 <section class="info-panel">
-                    <h2>AI 매분석 신호</h2>
+                    <h2>AI 계량 종합 신호</h2>
                     <div class="metric-grid">
-                        <div class="metric-item">
-                            <div class="metric-label">AI 종합 점수</div>
-                            <div class="metric-value" id="aiScore">--</div>
-                        </div>
-                        <div class="metric-item">
-                            <div class="metric-label">매매 신호</div>
-                            <div class="metric-value" id="aiSignal">--</div>
-                        </div>
-                        <div class="metric-item">
-                            <div class="metric-label">목표가</div>
-                            <div class="metric-value" id="targetPrice">--</div>
-                        </div>
-                        <div class="metric-item">
-                            <div class="metric-label">손절가</div>
-                            <div class="metric-value" id="stopLossPrice">--</div>
-                        </div>
+                        <div class="metric-item"><div class="metric-label">AI 스코어</div><div class="metric-value" id="aiScore">--</div></div>
+                        <div class="metric-item"><div class="metric-label">추천 전략</div><div class="metric-value" id="aiSignal">--</div></div>
+                        <div class="metric-item"><div class="metric-label">목표가</div><div class="metric-value" id="targetPrice">--</div></div>
+                        <div class="metric-item"><div class="metric-label">손절가</div><div class="metric-value" id="stopLossPrice">--</div></div>
                     </div>
-
-                    <h3 style="margin-top:12px;">관련 최신 뉴스</h3>
-                    <ul class="news-list" id="stockNewsContainer">
-                        </ul>
+                    <h3 style="margin-top: 12px;">종목별 매칭 뉴스</h3>
+                    <ul class="news-list" id="stockNewsContainer"></ul>
                 </section>
             </div>
         </main>
     </div>
-
     <script type="module" src="js/detail.js"></script>
 </body>
 </html>
