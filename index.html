@@ -3,36 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Stock Signal</title>
+    <title>AI Stock Signal - Dashboard</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="app-container">
         <aside class="sidebar">
-            <div class="logo">AI Stock Signal</div>
-            <nav>
-                <button class="nav-item active" onclick="switchTab('dashboard')">📊 Dashboard</button>
-                <button class="nav-item" onclick="switchTab('domestic')">🇰🇷 국내주식</button>
-                <button class="nav-item" onclick="switchTab('global')">🇺🇸 미국주식</button>
-                <button class="nav-item" onclick="switchTab('watchlist')">⭐ 관심종목</button>
-                <button class="nav-item" onclick="switchTab('signals')">⚡ AI 매수신호</button>
-                <button class="nav-item" onclick="switchTab('surge')">🔥 급등예상</button>
-                <button class="nav-item" onclick="switchTab('news')">📰 오늘의 뉴스</button>
-                <button class="nav-item" onclick="switchTab('settings')">⚙️ 설정</button>
-            </nav>
+            <a href="index.html" class="brand-title">AI Stock Signal</a>
+            <ul class="nav-menu">
+                <li class="nav-item active"><a href="index.html">📈 Dashboard</a></li>
+                <li class="nav-item"><a href="#">🇰🇷 국내주식</a></li>
+                <li class="nav-item"><a href="#">🇺🇸 미국주식</a></li>
+                <li class="nav-item"><a href="#">⚡ AI 매수신호</a></li>
+            </ul>
         </aside>
 
         <main class="main-content">
             <header class="content-header">
-                <h1 id="page-title">Dashboard</h1>
-                <p id="page-desc">실시간 데이터 구조 기반의 주식 신호 통합 대시보드</p>
+                <h1>Dashboard</h1>
+                <div class="search-box">
+                    <input type="text" id="dashboardSearch" class="search-input" placeholder="종목명 또는 티커 검색...">
+                </div>
             </header>
-            
-            <div id="content-body" class="content-body">
+
+            <div class="stock-grid" id="stockGridContainer">
                 </div>
         </main>
     </div>
 
-    <script src="js/script.js"></script>
+    <script type="module" src="js/dashboard.js"></script>
 </body>
 </html>
