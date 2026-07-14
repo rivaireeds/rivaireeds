@@ -12,7 +12,7 @@ async function initDashboard() {
 }
 
 function renderDashboard() {
-  const container = document.getElementById('stockGridContainer');
+ const container = document.getElementById('stockGridContainer');
   if (!container) return;
   container.innerHTML = '';
 
