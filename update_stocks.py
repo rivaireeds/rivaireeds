@@ -11,7 +11,7 @@ import os
 import sys
 from datetime import datetime, timedelta
 import pandas as pd
-import numpy as np
+import numpy as np  # 안전하게 임포트 선언 완료
 from pykrx import stock
 
 def get_nearest_business_days():
@@ -59,7 +59,7 @@ def main():
 
         # 지표 연산용 과거 40영업일 데이터 청크 일괄 로드
         target_past_days = business_days[-40:-1]
-        print("📈 지표 계산을 위한 과거 주가 매트릭스 구성 중 (약 10~20초 소요)...")
+        print("📈 지표 계산을 위한 과거 주가 매트릭스 구성 중 (약 15초 소요)...")
         for day in target_past_days:
             df_past = stock.get_market_ohlcv_by_ticker(day, market="ALL")
             if df_past.empty:
