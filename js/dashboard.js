@@ -85,7 +85,13 @@
 
     // 뱃지 스타일 맵핑
     const tags = (stock.signals || [])
-      .map(sig => `<span class="tag tag-${sig === 'RSI과매도탈출' ? 'rsi' : 'vol'}">${sig}</span>`)
+      .map(sig => {
+        let colorClass = 'vol';
+        if (sig === 'RSI과매도탈출') colorClass = 'rsi';
+        if (sig === 'MACD골든크로스') colorClass = 'macd';
+        if (sig === '피보나치지지') colorClass = 'fibo';
+        return `<span class="tag tag-${colorClass}">${sig}</span>`;
+        })
       .join("");
 
     return `
