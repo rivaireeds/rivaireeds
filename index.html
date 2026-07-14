@@ -1,36 +1,92 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Stock Signal - Dashboard</title>
-    <link rel="stylesheet" href="css/style.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>국내주식 매수신호 스캐너</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-    <div class="app-container">
-        <aside class="sidebar">
-            <a href="index.html" class="brand-title">AI Stock Signal</a>
-            <ul class="nav-menu">
-                <li class="nav-item active"><a href="index.html">📈 대시보드</a></li>
-                <li class="nav-item"><a href="#">🇰🇷 국내주식</a></li>
-                <li class="nav-item"><a href="#">🇺🇸 미국주식</a></li>
-                <li class="nav-item"><a href="#">⚡ AI 매수신호</a></li>
-            </ul>
-        </aside>
 
-        <main class="main-content">
-            <header class="content-header">
-                <h1>Dashboard</h1>
-                <div class="search-box">
-                    <input type="text" id="dashboardSearch" class="search-input" placeholder="종목명 또는 티커 검색...">
-                </div>
-            </header>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="brand-mark">●</span>
+      <span class="brand-text">신호탐지기<span class="brand-sub">KR STOCK SIGNAL SCANNER</span></span>
+    </div>
+    <div class="update-info" id="updateInfo">
+      <span class="update-label">최종 갱신</span>
+      <span class="update-time" id="updateTime">-</span>
+    </div>
+  </div>
+</header>
 
-            <div class="stock-grid" id="stockGridContainer">
-                </div>
-        </main>
+<main class="wrap">
+
+  <section class="stat-row" id="statRow">
+    <div class="stat-card">
+      <div class="stat-num" id="statScanned">-</div>
+      <div class="stat-label">전체 스캔 종목</div>
+    </div>
+    <div class="stat-card highlight">
+      <div class="stat-num" id="statSignals">-</div>
+      <div class="stat-label">신호 발견 종목</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statMarket">KOSPI+KOSDAQ</div>
+      <div class="stat-label">대상 시장</div>
+    </div>
+  </section>
+
+  <section class="control-row">
+    <input type="text" id="searchBox" class="search-box" placeholder="종목명 또는 티커 검색 (예: 삼성전자, 005930)" />
+
+    <div class="filter-chips" id="filterChips">
+      <button class="chip active" data-filter="ALL">전체</button>
+      <button class="chip" data-filter="정배열">정배열</button>
+      <button class="chip" data-filter="RSI과매도탈출">RSI탈출</button>
+      <button class="chip" data-filter="MACD골든크로스">MACD</button>
+      <button class="chip" data-filter="거래량급증">거래량급증</button>
+      <button class="chip" data-filter="피보나치">피보나치지지</button>
     </div>
 
-    <script type="module" src="js/dashboard.js"></script>
+    <select id="sortSelect" class="sort-select">
+      <option value="score_desc">신호점수 높은순</option>
+      <option value="change_desc">등락률 높은순</option>
+      <option value="volume_desc">거래량배수 높은순</option>
+      <option value="name_asc">종목명순</option>
+    </select>
+  </section>
+
+  <section class="table-section">
+    <table class="signal-table">
+      <thead>
+        <tr>
+          <th class="col-score">신호</th>
+          <th class="col-name">종목</th>
+          <th class="col-price">현재가</th>
+          <th class="col-change">등락률</th>
+          <th class="col-rsi">RSI</th>
+          <th class="col-vol">거래량배수</th>
+          <th class="col-tags">감지된 신호</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <tr><td colspan="7" class="empty-state">데이터를 불러오는 중입니다...</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <p class="footnote">
+    본 페이지는 기술적 지표 기반 자동 스캔 결과이며, 투자 조언이나 매수·매도 추천이 아닙니다.
+    데이터는 매매일 장마감 후 자동 갱신되며, 지연·오류가 있을 수 있습니다. 투자 판단과 책임은 본인에게 있습니다.
+  </p>
+
+</main>
+
+<script src="js/dashboard.js"></script>
 </body>
 </html>
