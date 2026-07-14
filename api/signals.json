@@ -3,35 +3,35 @@
     "ticker": "005930",
     "score": 50,
     "signal": "★★☆☆☆ 관망",
-    "target": 292675,
-    "stop": 234140
+    "target": 295550,
+    "stop": 236440
   },
   {
     "ticker": "000660",
     "score": 50,
     "signal": "★★☆☆☆ 관망",
-    "target": 2121750,
-    "stop": 1697400
+    "target": 2030899,
+    "stop": 1624720
   },
   {
     "ticker": "451760",
-    "score": 65,
-    "signal": "★★★☆☆ 관심",
-    "target": 8832,
-    "stop": 7065
+    "score": 50,
+    "signal": "★★☆☆☆ 관망",
+    "target": 8257,
+    "stop": 6605
   },
   {
     "ticker": "NVDA",
-    "score": 70,
-    "signal": "★★★★☆ 매수",
-    "target": 242.6,
-    "stop": 194.08
+    "score": 60,
+    "signal": "★★★☆☆ 관심",
+    "target": 234.06,
+    "stop": 187.25
   },
   {
     "ticker": "AAPL",
     "score": 70,
     "signal": "★★★★☆ 매수",
-    "target": 362.62,
-    "stop": 290.09
+    "target": 364.91,
+    "stop": 291.93
   }
 ]
