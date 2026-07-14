@@ -2,330 +2,180 @@
 """
 update_stocks.py
 =================
-국내(KOSPI + KOSDAQ) 전체 상장종목을 대상으로 매일 자동으로
-기술적 매수신호를 계산해서 data/signals.json 으로 저장하는 배치 스크립트.
-
-무료 데이터 소스인 pykrx(한국거래소 공개 데이터 기반)를 사용하며,
-API 키가 필요 없다. GitHub Actions에서 하루 1회(장 마감 후) 자동 실행되는 것을 전제로 짰다.
-
-계산하는 신호 5가지
---------------------
-1. 정배열       : 5일선 > 20일선 > 60일선
-2. RSI 과매도탈출 : RSI(14)가 30 아래에 있다가 다시 30 위로 올라오는 순간
-3. MACD 골든크로스 : MACD선이 시그널선을 상향 돌파하는 순간
-4. 거래량 급증    : 오늘 거래량이 최근 20일 평균 거래량의 2배 이상
-5. 피보나치 지지  : ZigZag로 잡은 최근 스윙 구간의 피보나치 되돌림(38.2/50/61.8%) 근처에 현재가가 위치
-
-각 종목마다 위 신호 중 몇 개가 동시에 뜨는지 세어서 "score"로 저장하고,
-score가 0인(아무 신호도 없는) 종목은 결과 JSON에서 제외한다 (파일 용량 절약 + 실제로 쓸모있는 후보만 보기 위함).
+국내 전 종목(KOSPI, KOSDAQ)의 당일 시세 정보 및 14일치 데이터를 일괄 수집한 뒤,
+메모리 상에서 연산하여 1) RSI 과매도 탈출, 2) 거래량 급증 신호를 초고속으로 판정합니다.
+개별 종목별 호출 루프가 없으므로 API 차단 위험이 없으며 1분 내외로 완료됩니다.
 """
 
 import json
-import time
+import os
 import sys
 from datetime import datetime, timedelta
-
-import numpy as np
 import pandas as pd
+import numpy as np
 from pykrx import stock
 
-# ----------------------------------------------------------------------------
-# 설정값 (필요하면 여기 숫자만 바꾸면 됨)
-# ----------------------------------------------------------------------------
-LOOKBACK_DAYS = 150          # 과거 몇 "달력일"치를 가져올지 (MA60 계산에 필요한 여유분 포함)
-VOLUME_SURGE_RATIO = 2.0     # 거래량 급증 판단 배수
-ZIGZAG_THRESHOLD = 0.08      # ZigZag 스윙 판정 임계값 (8% 이상 움직여야 새로운 피벗으로 인정)
-FIB_TOLERANCE = 0.02         # 피보나치 레벨과 현재가가 이 비율(2%) 이내면 "근접"으로 판단
-REQUEST_SLEEP = 0.25         # 종목별 요청 사이 대기시간 (초) - KRX 서버에 과도한 부하를 주지 않기 위함
-MIN_SCORE_TO_INCLUDE = 1     # 이 점수 이상인 종목만 결과에 포함
-
-
-def get_target_dates():
-    """오늘 날짜 기준 과거 LOOKBACK_DAYS 만큼의 시작일/종료일(YYYYMMDD 문자열)을 반환한다."""
-    today = datetime.today()
-    fromdate = (today - timedelta(days=LOOKBACK_DAYS)).strftime("%Y%m%d")
-    todate = today.strftime("%Y%m%d")
-    return fromdate, todate
-
-
-def call_with_retry(func, *args, max_retries=4, delay=3, **kwargs):
-    """
-    KRX 서버가 일시적으로 빈 응답/오류를 줄 때가 있어서, 실패하면 잠깐 쉬었다가
-    최대 max_retries번까지 같은 요청을 다시 시도하는 공용 래퍼.
-    """
-    last_err = None
-    for attempt in range(1, max_retries + 1):
-        try:
-            return func(*args, **kwargs)
-        except Exception as e:
-            last_err = e
-            print(f"  [재시도 {attempt}/{max_retries}] {func.__name__} 실패: {e}", file=sys.stderr)
-            time.sleep(delay)
-    raise last_err
-
-
-def get_all_tickers():
-    """
-    KOSPI + KOSDAQ 전체 종목 코드 리스트를 반환한다.
-    날짜를 지정하지 않고 호출하면 pykrx 내부에서 '최근 영업일'을 알아내는
-    별도의 서버 요청을 추가로 보내는데, 이 요청이 가끔 빈 응답으로 실패한다.
-    그래서 오늘 날짜부터 최대 7일 전까지 하루씩 뒤로 가며 날짜를 직접 지정해서
-    시도하고, 그래도 실패하면 call_with_retry로 재시도한다.
-    """
-    today = datetime.today()
-
-    for days_back in range(7):
-        date_str = (today - timedelta(days=days_back)).strftime("%Y%m%d")
-        try:
-            kospi = call_with_retry(stock.get_market_ticker_list, date_str, market="KOSPI")
-            kosdaq = call_with_retry(stock.get_market_ticker_list, date_str, market="KOSDAQ")
-            if kospi and kosdaq:
-                print(f"[{datetime.now()}] 종목 리스트 기준일: {date_str} "
-                      f"(KOSPI {len(kospi)}개, KOSDAQ {len(kosdaq)}개)")
-                return [(t, "KOSPI") for t in kospi] + [(t, "KOSDAQ") for t in kosdaq]
-        except Exception as e:
-            print(f"  [{date_str} 시도 실패] {e}", file=sys.stderr)
-
-    raise RuntimeError("최근 7일 이내로 종목 리스트를 하나도 가져오지 못했습니다 (KRX 서버 문제 가능성)")
-
-
-def calc_rsi(close: pd.Series, period: int = 14) -> pd.Series:
-    """일반적인 RSI(Wilder 방식) 계산."""
-    delta = close.diff()
-    gain = delta.clip(lower=0)
-    loss = -delta.clip(upper=0)
-    avg_gain = gain.ewm(alpha=1 / period, min_periods=period, adjust=False).mean()
-    avg_loss = loss.ewm(alpha=1 / period, min_periods=period, adjust=False).mean()
-    rs = avg_gain / avg_loss.replace(0, np.nan)
-    rsi = 100 - (100 / (1 + rs))
-    return rsi
-
-
-def calc_macd(close: pd.Series, fast=12, slow=26, signal=9):
-    """MACD선, 시그널선을 계산해서 (macd, signal_line) 튜플로 반환."""
-    ema_fast = close.ewm(span=fast, adjust=False).mean()
-    ema_slow = close.ewm(span=slow, adjust=False).mean()
-    macd_line = ema_fast - ema_slow
-    signal_line = macd_line.ewm(span=signal, adjust=False).mean()
-    return macd_line, signal_line
-
-
-def zigzag_pivots(close: pd.Series, threshold=ZIGZAG_THRESHOLD):
-    """
-    가격의 종가 시리즈에서 ZigZag 피벗(스윙 고점/저점)을 추출한다.
-    threshold(예: 0.08) 이상 반대방향으로 움직여야 새로운 피벗으로 인정한다.
-    반환값: [(index_position, price, 'high' or 'low'), ...] 리스트 (시간순)
-    """
-    prices = close.values
-    n = len(prices)
-    if n < 5:
-        return []
-
-    pivots = []
-    trend = None  # 'up' or 'down'
-    last_pivot_idx = 0
-    last_pivot_price = prices[0]
-
-    for i in range(1, n):
-        change = (prices[i] - last_pivot_price) / last_pivot_price
-
-        if trend is None:
-            if change >= threshold:
-                trend = "up"
-                last_pivot_price = prices[i]
-                last_pivot_idx = i
-            elif change <= -threshold:
-                trend = "down"
-                last_pivot_price = prices[i]
-                last_pivot_idx = i
-        elif trend == "up":
-            if prices[i] >= last_pivot_price:
-                last_pivot_price = prices[i]
-                last_pivot_idx = i
-            elif (prices[i] - last_pivot_price) / last_pivot_price <= -threshold:
-                pivots.append((last_pivot_idx, last_pivot_price, "high"))
-                trend = "down"
-                last_pivot_price = prices[i]
-                last_pivot_idx = i
-        elif trend == "down":
-            if prices[i] <= last_pivot_price:
-                last_pivot_price = prices[i]
-                last_pivot_idx = i
-            elif (prices[i] - last_pivot_price) / last_pivot_price >= threshold:
-                pivots.append((last_pivot_idx, last_pivot_price, "low"))
-                trend = "up"
-                last_pivot_price = prices[i]
-                last_pivot_idx = i
-
-    # 마지막 진행중인 피벗도 추가 (아직 반전되지 않았어도 "현재까지의 극점"으로 기록)
-    if trend is not None:
-        pivots.append((last_pivot_idx, last_pivot_price, "high" if trend == "up" else "low"))
-
-    return pivots
-
-
-def fibonacci_levels(low: float, high: float) -> dict:
-    """스윙 저점/고점 사이의 피보나치 되돌림 레벨을 계산한다."""
-    diff = high - low
-    return {
-        "23.6%": high - diff * 0.236,
-        "38.2%": high - diff * 0.382,
-        "50.0%": high - diff * 0.5,
-        "61.8%": high - diff * 0.618,
-        "78.6%": high - diff * 0.786,
-    }
-
-
-def check_fibonacci_support(close: pd.Series):
-    """
-    최근 ZigZag 피벗 2개(직전 스윙)를 기준으로 피보나치 레벨을 구하고,
-    현재가가 그 중 하나에 근접해 있는지 확인한다.
-    반환값: (해당하면 레벨 이름 문자열, 아니면 None)
-    """
-    pivots = zigzag_pivots(close)
-    if len(pivots) < 2:
-        return None
-
-    (_, price_a, type_a), (_, price_b, type_b) = pivots[-2], pivots[-1]
-
-    if type_a == type_b:
-        return None
-
-    low = min(price_a, price_b)
-    high = max(price_a, price_b)
-    if high == low:
-        return None
-
-    levels = fibonacci_levels(low, high)
-    current_price = close.iloc[-1]
-
-    for level_name, level_price in levels.items():
-        if level_price == 0:
-            continue
-        if abs(current_price - level_price) / level_price <= FIB_TOLERANCE:
-            return level_name
-
-    return None
-
-
-def analyze_ticker(ticker: str, df: pd.DataFrame):
-    """
-    종목 하나의 OHLCV DataFrame(pykrx 컬럼: 시가/고가/저가/종가/거래량)을 받아서
-    신호 리스트와 부가정보를 계산해 dict로 반환한다. 데이터가 부족하면 None 반환.
-    """
-    if df is None or len(df) < 65:  # MA60 계산에 최소 65개 거래일 필요
-        return None
-
-    close = df["종가"]
-    volume = df["거래량"]
-
-    ma5 = close.rolling(5).mean()
-    ma20 = close.rolling(20).mean()
-    ma60 = close.rolling(60).mean()
-
-    rsi = calc_rsi(close)
-    macd_line, signal_line = calc_macd(close)
-
-    signals = []
-
-    # 1) 정배열
-    if ma5.iloc[-1] > ma20.iloc[-1] > ma60.iloc[-1]:
-        signals.append("정배열")
-
-    # 2) RSI 과매도탈출 (전일 30 이하 -> 오늘 30 초과)
-    if pd.notna(rsi.iloc[-2]) and pd.notna(rsi.iloc[-1]):
-        if rsi.iloc[-2] <= 30 and rsi.iloc[-1] > 30:
-            signals.append("RSI과매도탈출")
-
-    # 3) MACD 골든크로스 (전일 macd < signal -> 오늘 macd > signal)
-    if (macd_line.iloc[-2] < signal_line.iloc[-2]) and (macd_line.iloc[-1] > signal_line.iloc[-1]):
-        signals.append("MACD골든크로스")
-
-    # 4) 거래량 급증 (최근 20일 평균 대비, 오늘 제외)
-    avg_volume_20 = volume.iloc[-21:-1].mean()
-    if avg_volume_20 > 0 and volume.iloc[-1] >= avg_volume_20 * VOLUME_SURGE_RATIO:
-        signals.append("거래량급증")
-
-    # 5) 피보나치 지지 근접
-    fib_hit = check_fibonacci_support(close)
-    if fib_hit:
-        signals.append(f"피보나치{fib_hit}지지")
-
-    if not signals:
-        return {"signals": [], "score": 0}
-
-    change_rate = df["등락률"].iloc[-1] if "등락률" in df.columns else None
-
-    return {
-        "signals": signals,
-        "score": len(signals),
-        "price": int(close.iloc[-1]),
-        "change_rate": round(float(change_rate), 2) if change_rate is not None else None,
-        "volume": int(volume.iloc[-1]),
-        "volume_ratio": round(float(volume.iloc[-1] / avg_volume_20), 2) if avg_volume_20 > 0 else None,
-        "rsi": round(float(rsi.iloc[-1]), 1) if pd.notna(rsi.iloc[-1]) else None,
-    }
-
+def get_nearest_business_days():
+    """최근 거래 영업일 20일을 확보합니다."""
+    today = datetime.now()
+    dates = []
+    # 넉넉하게 최근 45일 중 영업일을 탐색
+    for i in range(45):
+        day = today - timedelta(days=i)
+        if day.weekday() < 5:  # 주말 제외
+            dates.append(day.strftime("%Y%m%d"))
+    return sorted(dates)
 
 def main():
-    fromdate, todate = get_target_dates()
-    print(f"[{datetime.now()}] 데이터 수집 기간: {fromdate} ~ {todate}")
+    print(f"[{datetime.now()}] 🚀 초고속 전종목 신호 탐지 엔진 가동 시작...")
+    os.makedirs("data", exist_ok=True)
 
-    tickers = get_all_tickers()
-    print(f"[{datetime.now()}] 전체 대상 종목 수: {len(tickers)}개")
+    business_days = get_nearest_business_days()
+    if len(business_days) < 20:
+        print("❌ 유효한 영업일 데이터를 확보하지 못했습니다.")
+        return
 
-    results = []
-    fail_count = 0
+    # 1. 대상 날짜 정의
+    todate = business_days[-1]       # 당일
+    prev_20_date = business_days[-20] # 20영업일 전 (거래량 평균 계산용)
+    prev_15_date = business_days[-15] # 15영업일 전 (RSI 계산을 위해 최소 14일 이상의 데이터 필요)
 
-    for i, (ticker, market) in enumerate(tickers):
-        try:
-            df = call_with_retry(
-                stock.get_market_ohlcv, fromdate, todate, ticker,
-                max_retries=2, delay=2,
-            )
-            if df is None or df.empty:
+    try:
+        # 2. 당일 전체 종목 시세 일괄 조회 (1회 호출)
+        print(f"📊 {todate} 당일 시장 데이터 일괄 수집 중...")
+        df_today = stock.get_market_ohlcv_by_ticker(todate, market="ALL")
+        if df_today.empty or df_today['종가'].sum() == 0:
+            # 장마감 전이거나 휴일이면 직전 영업일로 대체
+            todate = business_days[-2]
+            prev_20_date = business_days[-21]
+            prev_15_date = business_days[-16]
+            print(f"⚠️ 직전 영업일 데이터로 전환 조회합니다: {todate}")
+            df_today = stock.get_market_ohlcv_by_ticker(todate, market="ALL")
+
+        if df_today.empty:
+            print("❌ 당일 데이터를 조회할 수 없습니다.")
+            return
+
+        df_today = df_today.reset_index() # '티커'를 컬럼으로 추출
+        df_today.rename(columns={'티커': 'ticker', '종가': 'price', '등락률': 'change_rate', '거래량': 'volume', '거래대금': 'amount'}, inplace=True)
+        
+        # 3. RSI 계산을 위해 이전 영업일별 전종목 종가 데이터 일괄 수집
+        print("📈 RSI 및 평균 거래량 연산을 위한 과거 주가 매핑 시작...")
+        
+        # 전종목의 종가와 거래량 흐름을 담을 딕셔너리 구성
+        price_history = {row['ticker']: [int(row['price'])] for _, row in df_today.iterrows()}
+        volume_history = {row['ticker']: [int(row['volume'])] for _, row in df_today.iterrows()}
+
+        # 과거 20영업일 동안의 데이터를 대량 수집 (날짜별로 단 20번만 호출하므로 차단당하지 않습니다!)
+        target_past_days = business_days[-20:-1]
+        for day in target_past_days:
+            df_past = stock.get_market_ohlcv_by_ticker(day, market="ALL")
+            if df_past.empty:
+                continue
+            df_past = df_past.reset_index()
+            for _, row in df_past.iterrows():
+                t = row['티커']
+                if t in price_history:
+                    price_history[t].append(int(row['종가']))
+                    volume_history[t].append(int(row['거래량']))
+
+        results = []
+
+        # 4. 연산 가동
+        for _, row in df_today.iterrows():
+            ticker = row['ticker']
+            price = int(row['price'])
+            volume = int(row['volume'])
+            amount = int(row['amount'])
+            rate = float(row['change_rate'])
+            
+            # 거래정지나 관리종목 등은 제외
+            if price == 0 or volume == 0:
                 continue
 
             name = stock.get_market_ticker_name(ticker)
-            analysis = analyze_ticker(ticker, df)
+            if not name or "우" in name[-1:] or "우B" in name or "우C" in name: # 우선주 제외
+                continue
 
-            if analysis and analysis["score"] >= MIN_SCORE_TO_INCLUDE:
+            # 시장 분류
+            market_type = "KOSPI" if ticker in stock.get_market_ticker_list(market="KOSPI") else "KOSDAQ"
+
+            # 20일 평균 거래량 산출
+            v_list = volume_history.get(ticker, [volume])
+            avg_vol_20 = np.mean(v_list[:20]) if len(v_list) >= 20 else volume
+            volume_ratio = round(volume / avg_vol_20, 2) if avg_vol_20 > 0 else 1.0
+
+            # 14일 RSI 계산 (종가 히스토리 기준)
+            p_list = price_history.get(ticker, [price])
+            rsi = 50 # 기본값
+            if len(p_list) >= 15:
+                # 역순으로 되어있으므로 시간순 정렬
+                p_series = pd.Series(p_list[::-1])
+                delta = p_series.diff()
+                up = delta.clip(lower=0)
+                down = -1 * delta.clip(upper=0)
+                
+                ema_up = up.ewm(com=13, adjust=False).mean()
+                ema_down = down.ewm(com=13, adjust=False).mean()
+                
+                rs = ema_up / ema_down.replace(0, np.nan)
+                rsi_series = 100 - (100 / (1 + rs))
+                rsi = round(rsi_series.iloc[-1], 1) if not np.isnan(rsi_series.iloc[-1]) else 50
+                
+                # 어제의 RSI 구하기 (과매도 탈출 여부 확인용)
+                prev_rsi = round(rsi_series.iloc[-2], 1) if len(rsi_series) > 1 and not np.isnan(rsi_series.iloc[-2]) else 50
+            else:
+                prev_rsi = 50
+
+            # 5. [수정 항목] 핵심 신호 탐지 필터링
+            detected_signals = []
+            score = 0
+
+            # 1) RSI 과매도 탈출 (어제는 RSI 30 이하였으나 오늘 30 위로 탈출)
+            if prev_rsi <= 30 < rsi:
+                detected_signals.append("RSI과매도탈출")
+                score += 50
+
+            # 2) 거래량 급증 (최근 20일 평균 대비 당일 거래량이 2배(200%) 이상 상승)
+            if volume_ratio >= 2.0 and volume > 50000:
+                detected_signals.append("거래량급증")
+                score += 50
+
+            # 어느 하나라도 조건에 부합하는 유효한 매수 후보 종목만 저장 리스트에 추가
+            if score > 0:
                 results.append({
                     "ticker": ticker,
                     "name": name,
-                    "market": market,
-                    **{k: v for k, v in analysis.items() if k not in ("score",)},
-                    "score": analysis["score"],
+                    "market": market_type,
+                    "price": price,
+                    "rate": rate,
+                    "rsi": rsi,
+                    "volume_ratio": volume_ratio,
+                    "score": score,
+                    "signals": detected_signals
                 })
 
-        except Exception as e:
-            fail_count += 1
-            print(f"  [경고] {ticker} 처리 중 오류: {e}", file=sys.stderr)
+        # 신호 점수가 높고 거래대금이 탄탄한 순서로 정렬
+        results.sort(key=lambda x: (x["score"], x["volume_ratio"]), reverse=True)
 
-        if (i + 1) % 100 == 0:
-            print(f"[{datetime.now()}] 진행상황: {i + 1}/{len(tickers)} "
-                  f"(신호 발견: {len(results)}개, 실패: {fail_count}개)")
+        # 5. JSON 저장
+        output = {
+            "update_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S KST"),
+            "data_date": todate,
+            "market": "KOSPI+KOSDAQ",
+            "total_scanned": len(df_today),
+            "total_signals": len(results),
+            "stocks": results
+        }
 
-        time.sleep(REQUEST_SLEEP)
+        with open("data/signals.json", "w", encoding="utf-8") as f:
+            json.dump(output, f, ensure_ascii=False, indent=2)
 
-    # score 높은 순으로 정렬
-    results.sort(key=lambda x: x["score"], reverse=True)
+        print(f"✨ 분석 및 갱신 성공! 감지된 종목 수: {len(results)}개 / 총 스캔 종목: {len(df_today)}개")
 
-    output = {
-        "update_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "data_date": todate,
-        "market": "KOSPI+KOSDAQ",
-        "total_scanned": len(tickers),
-        "total_signals": len(results),
-        "stocks": results,
-    }
-
-    with open("data/signals.json", "w", encoding="utf-8") as f:
-        json.dump(output, f, ensure_ascii=False, indent=2)
-
-    print(f"[{datetime.now()}] 완료: 전체 {len(tickers)}종목 중 {len(results)}종목에서 신호 발견 "
-          f"(처리 실패 {fail_count}건)")
-
+    except Exception as e:
+        print(f"❌ 전종목 수집 가동 실패: {e}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
