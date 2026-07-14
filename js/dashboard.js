@@ -5,22 +5,31 @@ let allStocks = {};
 let currentFilter = 'all'; // 필터링 상태: 'all', 'KR', 'US', 'signal'
 
 async function initDashboard() {
-  // api.js를 통해 실시간 병합 데이터를 수집
-  allStocks = await fetchStockData();
-  renderDashboard();
-  setupSidebar();
+  try {
+    // api.js를 통해 실시간 병합 데이터를 수집
+    allStocks = await fetchStockData();
+    renderDashboard();
+    setupSidebar();
+  } catch (error) {
+    console.error("Dashboard Init Error:", error);
+  }
 }
 
 function renderDashboard() {
-  // ⭐ [오타 해결] getElementById의 'Id' 대소문자를 정확히 수정했습니다.
   const container = document.getElementById('stockGridContainer');
   if (!container) return;
   container.innerHTML = '';
 
-  const stocksArray = Object.values(allStocks);
+  const stocksArray = Object.values(allStocks || {});
+
+  if (stocksArray.length === 0) {
+    container.innerHTML = '<div style="color: #848e9c; padding: 20px;">불러올 주식 데이터가 없습니다.</div>';
+    return;
+  }
 
   // 1. 선택한 메뉴 탭에 따른 데이터 필터링 규칙 적용
   const filtered = stocksArray.filter(stock => {
+    if (!stock) return false;
     const ticker = stock.ticker || '';
     const isKR = ticker.length === 6; // 6자리 코드면 국내주식
     
@@ -45,7 +54,7 @@ function renderDashboard() {
     card.className = 'stock-card';
     card.style.cursor = 'pointer'; // 클릭할 수 있는 직관적인 커서 모양 제공
     
-    // ⭐ [카드 클릭 기능] 클릭 시 상세 페이지(stock.html)로 해당 종목 코드와 함께 이동
+    // 카드 클릭 시 상세 페이지(stock.html)로 해당 종목 코드와 함께 이동
     card.onclick = () => {
       window.location.href = `stock.html?ticker=${stock.ticker}`;
     };
@@ -104,4 +113,11 @@ function setupSidebar() {
       else if (menuText.includes('미국주식')) currentFilter = 'US';
       else if (menuText.includes('AI 매수신호')) currentFilter = 'signal';
 
-      // 필터 적용 후 대시보드 새로
+      // 필터 적용 후 대시보드 새로 그리기
+      renderDashboard();
+    });
+  });
+}
+
+// DOM 생성이 완료되면 대시보드 초기화 프로세스 시작
+document.addEventListener('DOMContentLoaded', initDashboard);
