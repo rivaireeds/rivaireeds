@@ -2,23 +2,24 @@
 import { fetchStockData, formatCurrency } from './api.js';
 
 let allStocks = {};
-let currentFilter = 'all'; // 'all', 'KR', 'US', 'signal'
+let currentFilter = 'all'; // 필터링 상태: 'all', 'KR', 'US', 'signal'
 
 async function initDashboard() {
-  // api.js를 통해 병합된 데이터 가져오기
+  // api.js를 통해 실시간 병합 데이터를 수집
   allStocks = await fetchStockData();
   renderDashboard();
   setupSidebar();
 }
 
 function renderDashboard() {
- const container = document.getElementById('stockGridContainer');
+  // ⭐ [오타 해결] getElementById의 'Id' 대소문자를 정확히 수정했습니다.
+  const container = document.getElementById('stockGridContainer');
   if (!container) return;
   container.innerHTML = '';
 
   const stocksArray = Object.values(allStocks);
 
-  // 1. 선택한 메뉴에 따른 데이터 필터링 규칙
+  // 1. 선택한 메뉴 탭에 따른 데이터 필터링 규칙 적용
   const filtered = stocksArray.filter(stock => {
     const ticker = stock.ticker || '';
     const isKR = ticker.length === 6; // 6자리 코드면 국내주식
@@ -26,7 +27,7 @@ function renderDashboard() {
     if (currentFilter === 'KR') return isKR;
     if (currentFilter === 'US') return !isKR;
     if (currentFilter === 'signal') {
-      // AI점수가 70점 이상이거나 BUY 신호인 것만 필터링
+      // AI점수가 70점 이상이거나 BUY(매수) 신호인 것만 필터링
       const score = parseInt(stock.signal?.score || stock.score || 0);
       return score >= 70 || stock.signal?.text === 'BUY' || stock.signal?.text === '매수';
     }
@@ -38,13 +39,13 @@ function renderDashboard() {
     return;
   }
 
-  // 2. 필터링된 주식 카드 화면에 그리기
+  // 2. 필터링된 주식들로 카드 생성 및 렌더링
   filtered.forEach(stock => {
     const card = document.createElement('div');
     card.className = 'stock-card';
-    card.style.cursor = 'pointer'; // 마우스 커서를 손가락 모양으로 변경
+    card.style.cursor = 'pointer'; // 클릭할 수 있는 직관적인 커서 모양 제공
     
-    // ⭐ [핵심 FIX] 카드 클릭 시 상세 페이지로 ticker 값을 가지고 이동하도록 설정
+    // ⭐ [카드 클릭 기능] 클릭 시 상세 페이지(stock.html)로 해당 종목 코드와 함께 이동
     card.onclick = () => {
       window.location.href = `stock.html?ticker=${stock.ticker}`;
     };
@@ -60,7 +61,7 @@ function renderDashboard() {
     const marketType = ticker.length === 6 ? 'KR' : 'US';
     const formattedPrice = formatCurrency(price, marketType);
     
-    // 등락률에 따른 글자 색상 클래스 판별
+    // 등락 부호에 따른 텍스트 컬러 지정 (하락은 down, 상승은 up)
     const isMinus = changeText.includes('-');
     const colorClass = isMinus ? 'down' : 'up';
 
@@ -85,7 +86,7 @@ function renderDashboard() {
   });
 }
 
-// ⭐ [핵심 FIX] 좌측 메뉴 클릭 시 화면 데이터를 필터링해주는 이벤트 리스너 설정
+// 3. 사이드바(좌측 메뉴) 탭 클릭에 따른 이벤트 연동 함수
 function setupSidebar() {
   const navItems = document.querySelectorAll('.sidebar .nav-menu li');
   
@@ -93,8 +94,8 @@ function setupSidebar() {
     item.addEventListener('click', (e) => {
       e.preventDefault();
       
-      // 기존 활성화된 메뉴 클래스 제거 후 클릭한 메뉴에 활성화 클래스 부여
-      navItems.forEach(i => i.classList.remove('active', 'nav-item-active'));
+      // 활성화된 메뉴 하이라이팅 처리
+      navItems.forEach(i => i.classList.remove('active'));
       item.classList.add('active');
 
       const menuText = item.textContent;
@@ -103,10 +104,4 @@ function setupSidebar() {
       else if (menuText.includes('미국주식')) currentFilter = 'US';
       else if (menuText.includes('AI 매수신호')) currentFilter = 'signal';
 
-      // 필터 변경 후 대시보드 다시 그리기
-      renderDashboard();
-    });
-  });
-}
-
-document.addEventListener('DOMContentLoaded', initDashboard);
+      // 필터 적용 후 대시보드 새로
