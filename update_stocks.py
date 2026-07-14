@@ -48,11 +48,45 @@ def get_target_dates():
     return fromdate, todate
 
 
+def call_with_retry(func, *args, max_retries=4, delay=3, **kwargs):
+    """
+    KRX 서버가 일시적으로 빈 응답/오류를 줄 때가 있어서, 실패하면 잠깐 쉬었다가
+    최대 max_retries번까지 같은 요청을 다시 시도하는 공용 래퍼.
+    """
+    last_err = None
+    for attempt in range(1, max_retries + 1):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            last_err = e
+            print(f"  [재시도 {attempt}/{max_retries}] {func.__name__} 실패: {e}", file=sys.stderr)
+            time.sleep(delay)
+    raise last_err
+
+
 def get_all_tickers():
-    """KOSPI + KOSDAQ 전체 종목 코드 리스트를 반환한다."""
-    kospi = stock.get_market_ticker_list(market="KOSPI")
-    kosdaq = stock.get_market_ticker_list(market="KOSDAQ")
-    return [(t, "KOSPI") for t in kospi] + [(t, "KOSDAQ") for t in kosdaq]
+    """
+    KOSPI + KOSDAQ 전체 종목 코드 리스트를 반환한다.
+    날짜를 지정하지 않고 호출하면 pykrx 내부에서 '최근 영업일'을 알아내는
+    별도의 서버 요청을 추가로 보내는데, 이 요청이 가끔 빈 응답으로 실패한다.
+    그래서 오늘 날짜부터 최대 7일 전까지 하루씩 뒤로 가며 날짜를 직접 지정해서
+    시도하고, 그래도 실패하면 call_with_retry로 재시도한다.
+    """
+    today = datetime.today()
+
+    for days_back in range(7):
+        date_str = (today - timedelta(days=days_back)).strftime("%Y%m%d")
+        try:
+            kospi = call_with_retry(stock.get_market_ticker_list, date_str, market="KOSPI")
+            kosdaq = call_with_retry(stock.get_market_ticker_list, date_str, market="KOSDAQ")
+            if kospi and kosdaq:
+                print(f"[{datetime.now()}] 종목 리스트 기준일: {date_str} "
+                      f"(KOSPI {len(kospi)}개, KOSDAQ {len(kosdaq)}개)")
+                return [(t, "KOSPI") for t in kospi] + [(t, "KOSDAQ") for t in kosdaq]
+        except Exception as e:
+            print(f"  [{date_str} 시도 실패] {e}", file=sys.stderr)
+
+    raise RuntimeError("최근 7일 이내로 종목 리스트를 하나도 가져오지 못했습니다 (KRX 서버 문제 가능성)")
 
 
 def calc_rsi(close: pd.Series, period: int = 14) -> pd.Series:
@@ -245,7 +279,10 @@ def main():
 
     for i, (ticker, market) in enumerate(tickers):
         try:
-            df = stock.get_market_ohlcv(fromdate, todate, ticker)
+            df = call_with_retry(
+                stock.get_market_ohlcv, fromdate, todate, ticker,
+                max_retries=2, delay=2,
+            )
             if df is None or df.empty:
                 continue
 
