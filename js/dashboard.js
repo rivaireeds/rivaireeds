@@ -1,7 +1,6 @@
 /**
  * dashboard.js
- * data/signals.json 을 불러와서 검색/필터/정렬 후 테이블에 렌더링한다.
- * 백엔드 없이 순수 정적 파일(fetch)만으로 동작한다.
+ * data/signals.json 데이터를 가져와 필터링, 검색, 정렬 후 테이블에 화면 렌더링합니다.
  */
 
 (function () {
@@ -17,8 +16,9 @@
 
   async function loadData() {
     try {
-      // 캐시로 인해 예전 데이터가 보이는 걸 방지하기 위해 타임스탬프 쿼리 추가
+      // 캐시 방지 타임스탬프 추가 호출
       const res = await fetch(`data/signals.json?t=${Date.now()}`);
+      if (!res.ok) throw new Error("네트워크 응답 오류");
       const data = await res.json();
 
       document.getElementById("updateTime").textContent = data.update_time || "-";
@@ -31,7 +31,7 @@
       render();
     } catch (err) {
       tableBody.innerHTML = `<tr><td colspan="7" class="empty-state">
-        데이터를 불러오지 못했습니다. data/signals.json 파일이 존재하는지 확인해주세요.
+        데이터를 불러오지 못했습니다. data/signals.json 파일이 갱신되었는지 원격 저장소를 확인해주세요.
       </td></tr>`;
       console.error(err);
     }
@@ -39,77 +39,70 @@
 
   function matchesFilter(stock) {
     if (currentFilter === "ALL") return true;
-    if (currentFilter === "피보나치") {
-      return stock.signals.some((s) => s.startsWith("피보나치"));
-    }
-    return stock.signals.includes(currentFilter);
+    
+    // 주입된 signals 배열 목록에 선택한 칩 조건이 포함되어 있는지 확인
+    const signals = stock.signals || [];
+    return signals.includes(currentFilter);
   }
 
   function matchesSearch(stock) {
     if (!currentSearch) return true;
-    const q = currentSearch.toLowerCase();
-    return (
-      stock.name.toLowerCase().includes(q) ||
-      stock.ticker.includes(q)
-    );
+    const query = currentSearch.toLowerCase();
+    const name = (stock.name || "").toLowerCase();
+    const ticker = stock.ticker || "";
+    return name.includes(query) || ticker.includes(query);
   }
 
   function sortStocks(stocks) {
     const sorted = [...stocks];
-    switch (currentSort) {
-      case "score_desc":
-        sorted.sort((a, b) => b.score - a.score);
-        break;
-      case "change_desc":
-        sorted.sort((a, b) => (b.change_rate ?? -999) - (a.change_rate ?? -999));
-        break;
-      case "volume_desc":
-        sorted.sort((a, b) => (b.volume_ratio ?? 0) - (a.volume_ratio ?? 0));
-        break;
-      case "name_asc":
-        sorted.sort((a, b) => a.name.localeCompare(b.name, "ko"));
-        break;
+    if (currentSort === "score_desc") {
+      sorted.sort((a, b) => b.score - a.score);
+    } else if (currentSort === "change_desc") {
+      sorted.sort((a, b) => b.rate - a.rate);
+    } else if (currentSort === "volume_desc") {
+      sorted.sort((a, b) => b.volume_ratio - a.volume_ratio);
+    } else if (currentSort === "name_asc") {
+      sorted.sort((a, b) => (a.name || "").localeCompare(b.name || "", "ko"));
     }
     return sorted;
   }
 
-  function scoreMeterHtml(score) {
-    const max = 5;
-    let segs = "";
-    for (let i = 0; i < max; i++) {
-      segs += `<div class="seg ${i < score ? "on" : ""}"></div>`;
-    }
-    return `<div class="score-meter">${segs}</div>`;
-  }
-
-  function changeClass(rate) {
-    if (rate === null || rate === undefined) return "change-flat";
-    if (rate > 0) return "change-up";
-    if (rate < 0) return "change-down";
-    return "change-flat";
-  }
-
   function renderRow(stock) {
-    const rate = stock.change_rate;
-    const rateText =
-      rate === null || rate === undefined
-        ? "-"
-        : `${rate > 0 ? "+" : ""}${rate.toFixed(2)}%`;
+    const rate = stock.rate || 0;
+    const isUp = rate > 0;
+    const isDown = rate < 0;
+    const rateText = `${isUp ? "+" : ""}${rate.toFixed(2)}%`;
+    const changeClass = isUp ? "change-up" : isDown ? "change-down" : "change-flat";
 
-    const tags = stock.signals
-      .map((s) => `<span class="tag">${s}</span>`)
+    // 스코어 100점 만점 기준 미터기 시각화 (5개 세그먼트)
+    const activeSegments = Math.round((stock.score / 100) * 5);
+    let meterHtml = '<div class="score-meter">';
+    for (let i = 1; i <= 5; i++) {
+      const onClass = i <= activeSegments ? "on" : "";
+      meterHtml += `<span class="seg ${onClass}"></span>`;
+    }
+    meterHtml += "</div>";
+
+    // 뱃지 스타일 맵핑
+    const tags = (stock.signals || [])
+      .map(sig => `<span class="tag tag-${sig === 'RSI과매도탈출' ? 'rsi' : 'vol'}">${sig}</span>`)
       .join("");
 
     return `
       <tr>
-        <td class="col-score">${scoreMeterHtml(stock.score)}</td>
+        <td class="col-score">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-weight:700; color:var(--accent); font-family:var(--font-mono);">${stock.score}</span>
+            ${meterHtml}
+          </div>
+        </td>
         <td class="col-name">
           <span class="stock-name">${stock.name}</span>
           <span class="stock-ticker">${stock.ticker}</span>
           <span class="stock-market">${stock.market}</span>
         </td>
-        <td class="col-price">${stock.price?.toLocaleString() ?? "-"}</td>
-        <td class="col-change ${changeClass(rate)}">${rateText}</td>
+        <td class="col-price">${stock.price ? stock.price.toLocaleString() : "-"}</td>
+        <td class="col-change ${changeClass}">${rateText}</td>
         <td class="col-rsi">${stock.rsi ?? "-"}</td>
         <td class="col-vol">${stock.volume_ratio ? stock.volume_ratio + "x" : "-"}</td>
         <td class="col-tags"><div class="tag-list">${tags}</div></td>
@@ -118,14 +111,12 @@
   }
 
   function render() {
-    const filtered = allStocks
-      .filter(matchesFilter)
-      .filter(matchesSearch);
+    const filtered = allStocks.filter(matchesFilter).filter(matchesSearch);
     const sorted = sortStocks(filtered);
 
     if (sorted.length === 0) {
       tableBody.innerHTML = `<tr><td colspan="7" class="empty-state">
-        조건에 맞는 종목이 없습니다. 필터나 검색어를 바꿔보세요.
+        조건에 맞는 종목이 없습니다. 다른 필터나 검색어를 입력해보세요.
       </td></tr>`;
       return;
     }
@@ -133,7 +124,7 @@
     tableBody.innerHTML = sorted.map(renderRow).join("");
   }
 
-  // ---- 이벤트 바인딩 ----
+  // ---- 이벤트 리스너 설정 ----
 
   searchBox.addEventListener("input", (e) => {
     currentSearch = e.target.value.trim();
@@ -148,11 +139,14 @@
   filterChips.addEventListener("click", (e) => {
     const btn = e.target.closest(".chip");
     if (!btn) return;
-    filterChips.querySelectorAll(".chip").forEach((c) => c.classList.remove("active"));
+
+    filterChips.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
     btn.classList.add("active");
+
     currentFilter = btn.dataset.filter;
     render();
   });
 
+  // 최초 초기화 로드
   loadData();
 })();
