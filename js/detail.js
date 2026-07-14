@@ -1,47 +1,48 @@
-function loadTradingViewWidget(ticker, market) {
-  const container = document.getElementById('chartContainer');
-  if (!container) return;
+// js/api.js
+export async function fetchStockData() {
+  try {
+    const [stocksRes, quotesRes, signalsRes, newsRes] = await Promise.all([
+      fetch('api/stocks.json').then(r => r.json()).catch(() => []),
+      fetch('api/quotes.json').then(r => r.json()).catch(() => []),
+      fetch('api/signals.json').then(r => r.json()).catch(() => []),
+      fetch('api/news.json').then(r => r.json()).catch(() => [])
+    ]);
 
-  container.innerHTML = ''; // 기존 차트 영역 비우기
-  
-  // 국내주식은 KRX:005930, 미국주식은 NVIDIA 등 그대로 매핑
-  const symbolPattern = market === 'KR' ? `KRX:${ticker}` : ticker;
+    const mergedData = {};
 
-  // 1. 트레이딩뷰 고급 차트 컨테이너 생성
-  const widgetContainer = document.createElement('div');
-  widgetContainer.className = 'tradingview-widget-container';
-  widgetContainer.style.height = '100%';
-  widgetContainer.style.width = '100%';
+    stocksRes.forEach(item => {
+      mergedData[item.ticker] = { ...item, quote: {}, signal: {}, news: [] };
+    });
 
-  const targetDiv = document.createElement('div');
-  targetDiv.id = 'tradingview_advanced_chart';
-  targetDiv.style.height = '450px'; // 차트 높이 설정
-  
-  widgetContainer.appendChild(targetDiv);
-  container.appendChild(widgetContainer);
+    quotesRes.forEach(item => {
+      if (mergedData[item.ticker]) mergedData[item.ticker].quote = item;
+    });
 
-  // 2. 고급 차트 전용 스크ript 동적 로드
-  const script = document.createElement('script');
-  script.src = 'https://s3.tradingview.com/tv.js';
-  script.type = 'text/javascript';
-  script.async = true;
-  
-  script.onload = () => {
-    if (typeof TradingView !== 'undefined') {
-      new TradingView.widget({
-        "autosize": true,
-        "symbol": symbolPattern,
-        "interval": "D",
-        "timezone": "Asia/Seoul",
-        "theme": "dark",        // 대시보드와 어울리는 다크 테마
-        "style": "1",           // 캔들 차트 형태
-        "locale": "ko",
-        "enable_publishing": false,
-        "allow_symbol_change": true,
-        "container_id": "tradingview_advanced_chart"
-      });
-    }
-  };
-  
-  document.head.appendChild(script);
+    signalsRes.forEach(item => {
+      if (mergedData[item.ticker]) mergedData[item.ticker].signal = item;
+    });
+
+    newsRes.forEach(item => {
+      if (mergedData[item.ticker]) {
+        // 기존에 news 배열이 없으면 초기화 후 밀어넣기
+        if (!mergedData[item.ticker].news) {
+          mergedData[item.ticker].news = [];
+        }
+        mergedData[item.ticker].news.push(item);
+      }
+    });
+
+    return mergedData;
+  } catch (error) {
+    console.error("Data Load Error:", error);
+    return {};
+  }
+}
+
+export function formatCurrency(value, market) {
+  if (value === undefined || value === null) return '-';
+  if (market === "US") {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+  }
+  return new Intl.NumberFormat('ko-KR').format(value) + "원";
 }
