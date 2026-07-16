@@ -1,8 +1,1735 @@
 {
-  "update_time": "아직 자동 갱신되지 않았습니다",
-  "data_date": "-",
+  "update_time": "2026-07-16 02:16:47",
   "market": "KOSPI+KOSDAQ",
-  "total_scanned": 0,
-  "total_signals": 0,
-  "stocks": []
+  "total_scanned": 2763,
+  "total_signals": 115,
+  "stocks": [
+    {
+      "ticker": "009810",
+      "name": "플레이그램",
+      "market": "KOSPI",
+      "signals": [
+        "정배열",
+        "MACD골든크로스",
+        "피보나치23.6%지지"
+      ],
+      "score": 3,
+      "price": 1976,
+      "change_rate": 0.82,
+      "volume": 2797,
+      "volume_ratio": 0.15,
+      "rsi": 58.4
+    },
+    {
+      "ticker": "065060",
+      "name": "지엔코",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "MACD골든크로스",
+        "피보나치23.6%지지"
+      ],
+      "score": 3,
+      "price": 3070,
+      "change_rate": -5.54,
+      "volume": 22911,
+      "volume_ratio": 0.84,
+      "rsi": 53.3
+    },
+    {
+      "ticker": "000220",
+      "name": "유유제약",
+      "market": "KOSPI",
+      "signals": [
+        "MACD골든크로스",
+        "피보나치78.6%지지"
+      ],
+      "score": 2,
+      "price": 3705,
+      "change_rate": -0.54,
+      "volume": 38449,
+      "volume_ratio": 0.46,
+      "rsi": 45.9
+    },
+    {
+      "ticker": "000270",
+      "name": "기아",
+      "market": "KOSPI",
+      "signals": [
+        "MACD골든크로스",
+        "피보나치61.8%지지"
+      ],
+      "score": 2,
+      "price": 145900,
+      "change_rate": 0.62,
+      "volume": 262713,
+      "volume_ratio": 0.23,
+      "rsi": 46.7
+    },
+    {
+      "ticker": "001450",
+      "name": "현대해상",
+      "market": "KOSPI",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 37850,
+      "change_rate": 2.44,
+      "volume": 183979,
+      "volume_ratio": 0.42,
+      "rsi": 55.0
+    },
+    {
+      "ticker": "001940",
+      "name": "KISCO홀딩스",
+      "market": "KOSPI",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 25150,
+      "change_rate": -0.59,
+      "volume": 1787,
+      "volume_ratio": 0.2,
+      "rsi": 55.1
+    },
+    {
+      "ticker": "002360",
+      "name": "SH에너지화학",
+      "market": "KOSPI",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 1837,
+      "change_rate": -2.75,
+      "volume": 12154,
+      "volume_ratio": 0.22,
+      "rsi": 55.7
+    },
+    {
+      "ticker": "003465",
+      "name": "유화증권우",
+      "market": "KOSPI",
+      "signals": [
+        "MACD골든크로스",
+        "피보나치38.2%지지"
+      ],
+      "score": 2,
+      "price": 3040,
+      "change_rate": 0.0,
+      "volume": 4,
+      "volume_ratio": 0.0,
+      "rsi": 48.3
+    },
+    {
+      "ticker": "003690",
+      "name": "코리안리",
+      "market": "KOSPI",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 13730,
+      "change_rate": -1.08,
+      "volume": 39625,
+      "volume_ratio": 0.09,
+      "rsi": 55.0
+    },
+    {
+      "ticker": "003850",
+      "name": "보령",
+      "market": "KOSPI",
+      "signals": [
+        "MACD골든크로스",
+        "피보나치78.6%지지"
+      ],
+      "score": 2,
+      "price": 8280,
+      "change_rate": 0.73,
+      "volume": 27143,
+      "volume_ratio": 0.22,
+      "rsi": 45.7
+    },
+    {
+      "ticker": "004270",
+      "name": "남성",
+      "market": "KOSPI",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 7270,
+      "change_rate": -0.55,
+      "volume": 1072,
+      "volume_ratio": 0.07,
+      "rsi": 57.4
+    },
+    {
+      "ticker": "004545",
+      "name": "깨끗한나라우",
+      "market": "KOSPI",
+      "signals": [
+        "MACD골든크로스",
+        "거래량급증"
+      ],
+      "score": 2,
+      "price": 6590,
+      "change_rate": 11.51,
+      "volume": 10139,
+      "volume_ratio": 4.64,
+      "rsi": 42.9
+    },
+    {
+      "ticker": "004990",
+      "name": "롯데지주",
+      "market": "KOSPI",
+      "signals": [
+        "MACD골든크로스",
+        "피보나치78.6%지지"
+      ],
+      "score": 2,
+      "price": 22900,
+      "change_rate": 0.88,
+      "volume": 30426,
+      "volume_ratio": 0.16,
+      "rsi": 39.9
+    },
+    {
+      "ticker": "005360",
+      "name": "모나미",
+      "market": "KOSPI",
+      "signals": [
+        "정배열",
+        "거래량급증"
+      ],
+      "score": 2,
+      "price": 4315,
+      "change_rate": 25.25,
+      "volume": 14430677,
+      "volume_ratio": 7.35,
+      "rsi": 93.5
+    },
+    {
+      "ticker": "005430",
+      "name": "한국공항",
+      "market": "KOSPI",
+      "signals": [
+        "거래량급증",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 83500,
+      "change_rate": -2.68,
+      "volume": 71368,
+      "volume_ratio": 5.12,
+      "rsi": 52.6
+    },
+    {
+      "ticker": "005710",
+      "name": "대원산업",
+      "market": "KOSDAQ",
+      "signals": [
+        "거래량급증",
+        "피보나치38.2%지지"
+      ],
+      "score": 2,
+      "price": 10500,
+      "change_rate": 0.67,
+      "volume": 23889,
+      "volume_ratio": 2.08,
+      "rsi": 47.3
+    },
+    {
+      "ticker": "005950",
+      "name": "이수화학",
+      "market": "KOSPI",
+      "signals": [
+        "정배열",
+        "피보나치38.2%지지"
+      ],
+      "score": 2,
+      "price": 12990,
+      "change_rate": -4.49,
+      "volume": 120874,
+      "volume_ratio": 0.15,
+      "rsi": 48.6
+    },
+    {
+      "ticker": "006200",
+      "name": "한국전자홀딩스",
+      "market": "KOSPI",
+      "signals": [
+        "정배열",
+        "피보나치38.2%지지"
+      ],
+      "score": 2,
+      "price": 2395,
+      "change_rate": -3.82,
+      "volume": 8764,
+      "volume_ratio": 0.15,
+      "rsi": 53.6
+    },
+    {
+      "ticker": "007540",
+      "name": "샘표",
+      "market": "KOSPI",
+      "signals": [
+        "거래량급증",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 44000,
+      "change_rate": 1.15,
+      "volume": 29127,
+      "volume_ratio": 6.03,
+      "rsi": 53.7
+    },
+    {
+      "ticker": "011090",
+      "name": "에넥스",
+      "market": "KOSPI",
+      "signals": [
+        "정배열",
+        "거래량급증"
+      ],
+      "score": 2,
+      "price": 2755,
+      "change_rate": 29.95,
+      "volume": 1746052,
+      "volume_ratio": 6.73,
+      "rsi": 85.2
+    },
+    {
+      "ticker": "014280",
+      "name": "금강공업",
+      "market": "KOSPI",
+      "signals": [
+        "MACD골든크로스",
+        "피보나치61.8%지지"
+      ],
+      "score": 2,
+      "price": 3880,
+      "change_rate": -0.26,
+      "volume": 11299,
+      "volume_ratio": 0.15,
+      "rsi": 40.8
+    },
+    {
+      "ticker": "017890",
+      "name": "한국알콜",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 13830,
+      "change_rate": -4.22,
+      "volume": 39036,
+      "volume_ratio": 0.4,
+      "rsi": 60.0
+    },
+    {
+      "ticker": "019210",
+      "name": "와이지-원",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 23300,
+      "change_rate": -2.51,
+      "volume": 230951,
+      "volume_ratio": 0.21,
+      "rsi": 57.0
+    },
+    {
+      "ticker": "019550",
+      "name": "SBI인베스트먼트",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치38.2%지지"
+      ],
+      "score": 2,
+      "price": 938,
+      "change_rate": -1.57,
+      "volume": 74119,
+      "volume_ratio": 0.21,
+      "rsi": 52.4
+    },
+    {
+      "ticker": "023150",
+      "name": "MH에탄올",
+      "market": "KOSPI",
+      "signals": [
+        "정배열",
+        "피보나치38.2%지지"
+      ],
+      "score": 2,
+      "price": 4310,
+      "change_rate": -1.6,
+      "volume": 1362,
+      "volume_ratio": 0.06,
+      "rsi": 48.3
+    },
+    {
+      "ticker": "024850",
+      "name": "HLB이노베이션",
+      "market": "KOSDAQ",
+      "signals": [
+        "거래량급증",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 11010,
+      "change_rate": -7.94,
+      "volume": 741019,
+      "volume_ratio": 2.82,
+      "rsi": 45.7
+    },
+    {
+      "ticker": "027040",
+      "name": "서울전자통신",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치50.0%지지"
+      ],
+      "score": 2,
+      "price": 1880,
+      "change_rate": -1.83,
+      "volume": 34962,
+      "volume_ratio": 0.26,
+      "rsi": 50.5
+    },
+    {
+      "ticker": "030720",
+      "name": "동원수산",
+      "market": "KOSPI",
+      "signals": [
+        "거래량급증",
+        "피보나치78.6%지지"
+      ],
+      "score": 2,
+      "price": 6400,
+      "change_rate": -8.57,
+      "volume": 662338,
+      "volume_ratio": 9.06,
+      "rsi": 57.0
+    },
+    {
+      "ticker": "033250",
+      "name": "체시스",
+      "market": "KOSPI",
+      "signals": [
+        "MACD골든크로스",
+        "거래량급증"
+      ],
+      "score": 2,
+      "price": 3620,
+      "change_rate": -3.21,
+      "volume": 715145,
+      "volume_ratio": 10.96,
+      "rsi": 53.8
+    },
+    {
+      "ticker": "033340",
+      "name": "좋은사람들",
+      "market": "KOSDAQ",
+      "signals": [
+        "RSI과매도탈출",
+        "거래량급증"
+      ],
+      "score": 2,
+      "price": 530,
+      "change_rate": 29.9,
+      "volume": 8288150,
+      "volume_ratio": 5.82,
+      "rsi": 39.1
+    },
+    {
+      "ticker": "033540",
+      "name": "파라텍",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 948,
+      "change_rate": -0.94,
+      "volume": 8874,
+      "volume_ratio": 0.03,
+      "rsi": 53.1
+    },
+    {
+      "ticker": "035620",
+      "name": "바른손이앤에이",
+      "market": "KOSDAQ",
+      "signals": [
+        "MACD골든크로스",
+        "거래량급증"
+      ],
+      "score": 2,
+      "price": 800,
+      "change_rate": 16.79,
+      "volume": 526519,
+      "volume_ratio": 5.31,
+      "rsi": 53.2
+    },
+    {
+      "ticker": "036800",
+      "name": "나이스정보통신",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 29750,
+      "change_rate": 0.34,
+      "volume": 6910,
+      "volume_ratio": 0.29,
+      "rsi": 53.5
+    },
+    {
+      "ticker": "037710",
+      "name": "광주신세계",
+      "market": "KOSPI",
+      "signals": [
+        "정배열",
+        "피보나치78.6%지지"
+      ],
+      "score": 2,
+      "price": 43700,
+      "change_rate": -8.19,
+      "volume": 76842,
+      "volume_ratio": 0.09,
+      "rsi": 51.4
+    },
+    {
+      "ticker": "037950",
+      "name": "엘컴텍",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치50.0%지지"
+      ],
+      "score": 2,
+      "price": 2915,
+      "change_rate": -1.52,
+      "volume": 1991,
+      "volume_ratio": 0.05,
+      "rsi": 53.2
+    },
+    {
+      "ticker": "039830",
+      "name": "오로라",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치78.6%지지"
+      ],
+      "score": 2,
+      "price": 19110,
+      "change_rate": -2.0,
+      "volume": 6813,
+      "volume_ratio": 0.06,
+      "rsi": 52.4
+    },
+    {
+      "ticker": "040610",
+      "name": "SG&G",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치50.0%지지"
+      ],
+      "score": 2,
+      "price": 3135,
+      "change_rate": -2.34,
+      "volume": 11637,
+      "volume_ratio": 0.28,
+      "rsi": 51.5
+    },
+    {
+      "ticker": "041830",
+      "name": "인바디",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치78.6%지지"
+      ],
+      "score": 2,
+      "price": 52900,
+      "change_rate": -4.68,
+      "volume": 19460,
+      "volume_ratio": 0.13,
+      "rsi": 53.0
+    },
+    {
+      "ticker": "043340",
+      "name": "에쎈테크",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치78.6%지지"
+      ],
+      "score": 2,
+      "price": 807,
+      "change_rate": -0.12,
+      "volume": 4665,
+      "volume_ratio": 0.03,
+      "rsi": 51.7
+    },
+    {
+      "ticker": "043910",
+      "name": "자연과환경",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치38.2%지지"
+      ],
+      "score": 2,
+      "price": 3100,
+      "change_rate": -1.12,
+      "volume": 33736,
+      "volume_ratio": 0.67,
+      "rsi": 54.3
+    },
+    {
+      "ticker": "044380",
+      "name": "주연테크",
+      "market": "KOSPI",
+      "signals": [
+        "MACD골든크로스",
+        "거래량급증"
+      ],
+      "score": 2,
+      "price": 1040,
+      "change_rate": 30.0,
+      "volume": 421519,
+      "volume_ratio": 3.27,
+      "rsi": 51.8
+    },
+    {
+      "ticker": "049080",
+      "name": "기가레인",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "거래량급증"
+      ],
+      "score": 2,
+      "price": 13680,
+      "change_rate": 16.62,
+      "volume": 3901737,
+      "volume_ratio": 2.16,
+      "rsi": 84.6
+    },
+    {
+      "ticker": "049470",
+      "name": "비트플래닛",
+      "market": "KOSDAQ",
+      "signals": [
+        "MACD골든크로스",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 1435,
+      "change_rate": -4.33,
+      "volume": 5871,
+      "volume_ratio": 0.15,
+      "rsi": 49.2
+    },
+    {
+      "ticker": "053060",
+      "name": "세동",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치78.6%지지"
+      ],
+      "score": 2,
+      "price": 1435,
+      "change_rate": -0.35,
+      "volume": 4758,
+      "volume_ratio": 0.03,
+      "rsi": 53.4
+    },
+    {
+      "ticker": "053160",
+      "name": "프리엠스",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 9070,
+      "change_rate": -0.33,
+      "volume": 11362,
+      "volume_ratio": 0.38,
+      "rsi": 51.2
+    },
+    {
+      "ticker": "055550",
+      "name": "신한지주",
+      "market": "KOSPI",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 106500,
+      "change_rate": -0.75,
+      "volume": 506142,
+      "volume_ratio": 0.33,
+      "rsi": 56.4
+    },
+    {
+      "ticker": "065950",
+      "name": "웰크론",
+      "market": "KOSDAQ",
+      "signals": [
+        "거래량급증",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 1201,
+      "change_rate": -2.91,
+      "volume": 3135762,
+      "volume_ratio": 11.63,
+      "rsi": 61.5
+    },
+    {
+      "ticker": "066670",
+      "name": "디티씨",
+      "market": "KOSDAQ",
+      "signals": [
+        "MACD골든크로스",
+        "피보나치50.0%지지"
+      ],
+      "score": 2,
+      "price": 2530,
+      "change_rate": 3.69,
+      "volume": 10311,
+      "volume_ratio": 0.51,
+      "rsi": 50.0
+    },
+    {
+      "ticker": "066900",
+      "name": "디에이피",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 1820,
+      "change_rate": -1.62,
+      "volume": 736,
+      "volume_ratio": 0.1,
+      "rsi": 54.0
+    },
+    {
+      "ticker": "069730",
+      "name": "DSR제강",
+      "market": "KOSPI",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 5510,
+      "change_rate": -1.61,
+      "volume": 4667,
+      "volume_ratio": 0.06,
+      "rsi": 54.7
+    },
+    {
+      "ticker": "069920",
+      "name": "엑시온그룹",
+      "market": "KOSDAQ",
+      "signals": [
+        "MACD골든크로스",
+        "거래량급증"
+      ],
+      "score": 2,
+      "price": 949,
+      "change_rate": 30.0,
+      "volume": 576419,
+      "volume_ratio": 2.82,
+      "rsi": 55.0
+    },
+    {
+      "ticker": "071950",
+      "name": "코아스",
+      "market": "KOSPI",
+      "signals": [
+        "정배열",
+        "거래량급증"
+      ],
+      "score": 2,
+      "price": 2435,
+      "change_rate": 14.05,
+      "volume": 431113,
+      "volume_ratio": 5.24,
+      "rsi": 64.9
+    },
+    {
+      "ticker": "072130",
+      "name": "유엔젤",
+      "market": "KOSPI",
+      "signals": [
+        "정배열",
+        "피보나치38.2%지지"
+      ],
+      "score": 2,
+      "price": 5180,
+      "change_rate": -1.33,
+      "volume": 14843,
+      "volume_ratio": 0.19,
+      "rsi": 49.7
+    },
+    {
+      "ticker": "072870",
+      "name": "메가스터디",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 13030,
+      "change_rate": -0.53,
+      "volume": 1958,
+      "volume_ratio": 0.06,
+      "rsi": 49.0
+    },
+    {
+      "ticker": "073570",
+      "name": "리튬포어스",
+      "market": "KOSDAQ",
+      "signals": [
+        "MACD골든크로스",
+        "피보나치38.2%지지"
+      ],
+      "score": 2,
+      "price": 1641,
+      "change_rate": -1.91,
+      "volume": 40085,
+      "volume_ratio": 0.61,
+      "rsi": 46.6
+    },
+    {
+      "ticker": "078130",
+      "name": "국일제지",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 3940,
+      "change_rate": -1.01,
+      "volume": 26798,
+      "volume_ratio": 0.14,
+      "rsi": 59.4
+    },
+    {
+      "ticker": "080530",
+      "name": "코디",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 2500,
+      "change_rate": 0.2,
+      "volume": 1678,
+      "volume_ratio": 0.09,
+      "rsi": 58.3
+    },
+    {
+      "ticker": "081660",
+      "name": "미스토홀딩스",
+      "market": "KOSPI",
+      "signals": [
+        "정배열",
+        "피보나치78.6%지지"
+      ],
+      "score": 2,
+      "price": 45600,
+      "change_rate": 1.0,
+      "volume": 18121,
+      "volume_ratio": 0.09,
+      "rsi": 54.6
+    },
+    {
+      "ticker": "082740",
+      "name": "한화엔진",
+      "market": "KOSPI",
+      "signals": [
+        "MACD골든크로스",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 46000,
+      "change_rate": -2.65,
+      "volume": 246814,
+      "volume_ratio": 0.3,
+      "rsi": 41.7
+    },
+    {
+      "ticker": "083640",
+      "name": "인콘",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치38.2%지지"
+      ],
+      "score": 2,
+      "price": 1163,
+      "change_rate": -2.92,
+      "volume": 10419,
+      "volume_ratio": 0.05,
+      "rsi": 50.2
+    },
+    {
+      "ticker": "086900",
+      "name": "메디톡스",
+      "market": "KOSDAQ",
+      "signals": [
+        "MACD골든크로스",
+        "피보나치78.6%지지"
+      ],
+      "score": 2,
+      "price": 71900,
+      "change_rate": -0.69,
+      "volume": 4522,
+      "volume_ratio": 0.13,
+      "rsi": 38.2
+    },
+    {
+      "ticker": "093190",
+      "name": "빅솔론",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치61.8%지지"
+      ],
+      "score": 2,
+      "price": 8020,
+      "change_rate": -0.99,
+      "volume": 3050,
+      "volume_ratio": 0.15,
+      "rsi": 51.1
+    },
+    {
+      "ticker": "096870",
+      "name": "엘디티",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 2365,
+      "change_rate": -1.66,
+      "volume": 13240,
+      "volume_ratio": 0.07,
+      "rsi": 58.6
+    },
+    {
+      "ticker": "102370",
+      "name": "케이옥션",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치78.6%지지"
+      ],
+      "score": 2,
+      "price": 3110,
+      "change_rate": 0.16,
+      "volume": 8642,
+      "volume_ratio": 0.08,
+      "rsi": 52.4
+    },
+    {
+      "ticker": "105560",
+      "name": "KB금융",
+      "market": "KOSPI",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 180300,
+      "change_rate": -0.72,
+      "volume": 459537,
+      "volume_ratio": 0.27,
+      "rsi": 62.5
+    },
+    {
+      "ticker": "115180",
+      "name": "큐리언트",
+      "market": "KOSDAQ",
+      "signals": [
+        "MACD골든크로스",
+        "피보나치38.2%지지"
+      ],
+      "score": 2,
+      "price": 17700,
+      "change_rate": -4.27,
+      "volume": 17824,
+      "volume_ratio": 0.13,
+      "rsi": 36.5
+    },
+    {
+      "ticker": "115530",
+      "name": "씨엔플러스",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 1826,
+      "change_rate": -2.82,
+      "volume": 13015,
+      "volume_ratio": 0.38,
+      "rsi": 53.6
+    },
+    {
+      "ticker": "123330",
+      "name": "제닉",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치61.8%지지"
+      ],
+      "score": 2,
+      "price": 25375,
+      "change_rate": 5.95,
+      "volume": 124901,
+      "volume_ratio": 0.43,
+      "rsi": 54.3
+    },
+    {
+      "ticker": "130740",
+      "name": "티피씨글로벌",
+      "market": "KOSDAQ",
+      "signals": [
+        "MACD골든크로스",
+        "피보나치38.2%지지"
+      ],
+      "score": 2,
+      "price": 1970,
+      "change_rate": 1.81,
+      "volume": 11634,
+      "volume_ratio": 0.16,
+      "rsi": 50.3
+    },
+    {
+      "ticker": "131290",
+      "name": "티에스이",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 265500,
+      "change_rate": -6.68,
+      "volume": 31787,
+      "volume_ratio": 0.24,
+      "rsi": 55.2
+    },
+    {
+      "ticker": "137940",
+      "name": "넥스트아이",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치38.2%지지"
+      ],
+      "score": 2,
+      "price": 2165,
+      "change_rate": -0.69,
+      "volume": 5043,
+      "volume_ratio": 0.1,
+      "rsi": 60.4
+    },
+    {
+      "ticker": "145995",
+      "name": "삼양사우",
+      "market": "KOSPI",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 33100,
+      "change_rate": 0.0,
+      "volume": 53,
+      "volume_ratio": 0.05,
+      "rsi": 56.1
+    },
+    {
+      "ticker": "148930",
+      "name": "에이치와이티씨",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 3240,
+      "change_rate": -3.43,
+      "volume": 38474,
+      "volume_ratio": 0.55,
+      "rsi": 53.0
+    },
+    {
+      "ticker": "155660",
+      "name": "DSR",
+      "market": "KOSPI",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 4440,
+      "change_rate": -1.66,
+      "volume": 9359,
+      "volume_ratio": 0.17,
+      "rsi": 54.5
+    },
+    {
+      "ticker": "161390",
+      "name": "한국타이어앤테크놀로지",
+      "market": "KOSPI",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 71800,
+      "change_rate": 0.42,
+      "volume": 62775,
+      "volume_ratio": 0.16,
+      "rsi": 57.7
+    },
+    {
+      "ticker": "161890",
+      "name": "한국콜마",
+      "market": "KOSPI",
+      "signals": [
+        "정배열",
+        "피보나치78.6%지지"
+      ],
+      "score": 2,
+      "price": 106000,
+      "change_rate": -1.12,
+      "volume": 95089,
+      "volume_ratio": 0.2,
+      "rsi": 54.4
+    },
+    {
+      "ticker": "188260",
+      "name": "세니젠",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 2080,
+      "change_rate": -2.58,
+      "volume": 297,
+      "volume_ratio": 0.02,
+      "rsi": 57.7
+    },
+    {
+      "ticker": "199480",
+      "name": "뱅크웨어글로벌",
+      "market": "KOSDAQ",
+      "signals": [
+        "RSI과매도탈출",
+        "피보나치61.8%지지"
+      ],
+      "score": 2,
+      "price": 2805,
+      "change_rate": 1.81,
+      "volume": 1318,
+      "volume_ratio": 0.05,
+      "rsi": 33.2
+    },
+    {
+      "ticker": "205470",
+      "name": "휴마시스",
+      "market": "KOSDAQ",
+      "signals": [
+        "MACD골든크로스",
+        "피보나치61.8%지지"
+      ],
+      "score": 2,
+      "price": 2180,
+      "change_rate": -0.68,
+      "volume": 7246,
+      "volume_ratio": 0.1,
+      "rsi": 39.3
+    },
+    {
+      "ticker": "206560",
+      "name": "덱스터",
+      "market": "KOSDAQ",
+      "signals": [
+        "RSI과매도탈출",
+        "피보나치78.6%지지"
+      ],
+      "score": 2,
+      "price": 1078,
+      "change_rate": 5.07,
+      "volume": 160838,
+      "volume_ratio": 1.98,
+      "rsi": 33.6
+    },
+    {
+      "ticker": "217730",
+      "name": "강스템바이오텍",
+      "market": "KOSDAQ",
+      "signals": [
+        "거래량급증",
+        "피보나치78.6%지지"
+      ],
+      "score": 2,
+      "price": 2340,
+      "change_rate": 1.3,
+      "volume": 1508652,
+      "volume_ratio": 2.52,
+      "rsi": 43.8
+    },
+    {
+      "ticker": "218150",
+      "name": "미래생명자원",
+      "market": "KOSDAQ",
+      "signals": [
+        "거래량급증",
+        "피보나치50.0%지지"
+      ],
+      "score": 2,
+      "price": 2225,
+      "change_rate": 5.2,
+      "volume": 3007325,
+      "volume_ratio": 7.98,
+      "rsi": 60.1
+    },
+    {
+      "ticker": "219750",
+      "name": "한국비티비",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치78.6%지지"
+      ],
+      "score": 2,
+      "price": 1886,
+      "change_rate": 2.78,
+      "volume": 6686,
+      "volume_ratio": 0.03,
+      "rsi": 60.6
+    },
+    {
+      "ticker": "222040",
+      "name": "코스맥스엔비티",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치50.0%지지"
+      ],
+      "score": 2,
+      "price": 8040,
+      "change_rate": 3.08,
+      "volume": 57537,
+      "volume_ratio": 0.29,
+      "rsi": 63.3
+    },
+    {
+      "ticker": "227950",
+      "name": "엔투텍",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치78.6%지지"
+      ],
+      "score": 2,
+      "price": 1184,
+      "change_rate": -1.82,
+      "volume": 9672,
+      "volume_ratio": 0.11,
+      "rsi": 52.8
+    },
+    {
+      "ticker": "232140",
+      "name": "와이씨",
+      "market": "KOSDAQ",
+      "signals": [
+        "MACD골든크로스",
+        "피보나치78.6%지지"
+      ],
+      "score": 2,
+      "price": 9910,
+      "change_rate": -8.66,
+      "volume": 259194,
+      "volume_ratio": 0.38,
+      "rsi": 33.1
+    },
+    {
+      "ticker": "234100",
+      "name": "폴라리스세원",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 2665,
+      "change_rate": -2.2,
+      "volume": 8540,
+      "volume_ratio": 0.15,
+      "rsi": 55.9
+    },
+    {
+      "ticker": "255220",
+      "name": "SG",
+      "market": "KOSDAQ",
+      "signals": [
+        "거래량급증",
+        "피보나치38.2%지지"
+      ],
+      "score": 2,
+      "price": 1459,
+      "change_rate": 5.5,
+      "volume": 6777164,
+      "volume_ratio": 2.68,
+      "rsi": 41.7
+    },
+    {
+      "ticker": "256630",
+      "name": "포인트엔지니어링",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 4525,
+      "change_rate": -1.09,
+      "volume": 11501,
+      "volume_ratio": 1.33,
+      "rsi": 59.4
+    },
+    {
+      "ticker": "258790",
+      "name": "소프트캠프",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 4195,
+      "change_rate": 2.44,
+      "volume": 5582,
+      "volume_ratio": 0.14,
+      "rsi": 57.9
+    },
+    {
+      "ticker": "263920",
+      "name": "휴엠앤씨",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 3900,
+      "change_rate": -0.64,
+      "volume": 3709,
+      "volume_ratio": 0.17,
+      "rsi": 59.5
+    },
+    {
+      "ticker": "270660",
+      "name": "에브리봇",
+      "market": "KOSDAQ",
+      "signals": [
+        "MACD골든크로스",
+        "피보나치78.6%지지"
+      ],
+      "score": 2,
+      "price": 10320,
+      "change_rate": -3.46,
+      "volume": 6052,
+      "volume_ratio": 0.06,
+      "rsi": 39.9
+    },
+    {
+      "ticker": "272210",
+      "name": "한화시스템",
+      "market": "KOSPI",
+      "signals": [
+        "MACD골든크로스",
+        "피보나치61.8%지지"
+      ],
+      "score": 2,
+      "price": 64900,
+      "change_rate": -1.37,
+      "volume": 175324,
+      "volume_ratio": 0.24,
+      "rsi": 36.8
+    },
+    {
+      "ticker": "278650",
+      "name": "HLB바이오스텝",
+      "market": "KOSDAQ",
+      "signals": [
+        "거래량급증",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 2245,
+      "change_rate": -6.65,
+      "volume": 520913,
+      "volume_ratio": 3.46,
+      "rsi": 41.8
+    },
+    {
+      "ticker": "281820",
+      "name": "케이씨텍",
+      "market": "KOSPI",
+      "signals": [
+        "정배열",
+        "피보나치78.6%지지"
+      ],
+      "score": 2,
+      "price": 96300,
+      "change_rate": -8.2,
+      "volume": 88577,
+      "volume_ratio": 0.26,
+      "rsi": 53.1
+    },
+    {
+      "ticker": "290690",
+      "name": "소룩스",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치78.6%지지"
+      ],
+      "score": 2,
+      "price": 4670,
+      "change_rate": 0.65,
+      "volume": 878001,
+      "volume_ratio": 0.27,
+      "rsi": 49.1
+    },
+    {
+      "ticker": "306040",
+      "name": "에스제이그룹",
+      "market": "KOSDAQ",
+      "signals": [
+        "RSI과매도탈출",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 1770,
+      "change_rate": 3.63,
+      "volume": 45976,
+      "volume_ratio": 0.75,
+      "rsi": 33.7
+    },
+    {
+      "ticker": "317400",
+      "name": "자이에스앤디",
+      "market": "KOSPI",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 4850,
+      "change_rate": -3.0,
+      "volume": 94671,
+      "volume_ratio": 0.32,
+      "rsi": 59.9
+    },
+    {
+      "ticker": "322780",
+      "name": "코퍼스코리아",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 2070,
+      "change_rate": 3.66,
+      "volume": 49953,
+      "volume_ratio": 0.09,
+      "rsi": 53.8
+    },
+    {
+      "ticker": "332370",
+      "name": "아이디피",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 5290,
+      "change_rate": 0.0,
+      "volume": 19,
+      "volume_ratio": 0.0,
+      "rsi": 56.0
+    },
+    {
+      "ticker": "333050",
+      "name": "이노테나",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 5220,
+      "change_rate": -1.14,
+      "volume": 728,
+      "volume_ratio": 0.06,
+      "rsi": 58.0
+    },
+    {
+      "ticker": "359090",
+      "name": "씨엔알리서치",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 1909,
+      "change_rate": -0.05,
+      "volume": 5289,
+      "volume_ratio": 0.06,
+      "rsi": 78.6
+    },
+    {
+      "ticker": "373220",
+      "name": "LG에너지솔루션",
+      "market": "KOSPI",
+      "signals": [
+        "MACD골든크로스",
+        "피보나치78.6%지지"
+      ],
+      "score": 2,
+      "price": 338500,
+      "change_rate": 1.04,
+      "volume": 110185,
+      "volume_ratio": 0.24,
+      "rsi": 44.0
+    },
+    {
+      "ticker": "383220",
+      "name": "F&F",
+      "market": "KOSPI",
+      "signals": [
+        "정배열",
+        "피보나치38.2%지지"
+      ],
+      "score": 2,
+      "price": 78500,
+      "change_rate": 0.0,
+      "volume": 10478,
+      "volume_ratio": 0.13,
+      "rsi": 51.0
+    },
+    {
+      "ticker": "439090",
+      "name": "마녀공장",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 16960,
+      "change_rate": 2.29,
+      "volume": 480338,
+      "volume_ratio": 1.31,
+      "rsi": 58.7
+    },
+    {
+      "ticker": "439580",
+      "name": "블루엠텍",
+      "market": "KOSDAQ",
+      "signals": [
+        "MACD골든크로스",
+        "피보나치78.6%지지"
+      ],
+      "score": 2,
+      "price": 1675,
+      "change_rate": -1.41,
+      "volume": 25609,
+      "volume_ratio": 0.16,
+      "rsi": 32.3
+    },
+    {
+      "ticker": "453340",
+      "name": "현대그린푸드",
+      "market": "KOSPI",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 18500,
+      "change_rate": 2.61,
+      "volume": 12615,
+      "volume_ratio": 0.23,
+      "rsi": 60.7
+    },
+    {
+      "ticker": "457600",
+      "name": "벡트",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 2720,
+      "change_rate": -4.73,
+      "volume": 112194,
+      "volume_ratio": 0.33,
+      "rsi": 59.8
+    },
+    {
+      "ticker": "460930",
+      "name": "현대힘스",
+      "market": "KOSDAQ",
+      "signals": [
+        "거래량급증",
+        "피보나치50.0%지지"
+      ],
+      "score": 2,
+      "price": 11640,
+      "change_rate": 4.02,
+      "volume": 312187,
+      "volume_ratio": 2.25,
+      "rsi": 41.9
+    },
+    {
+      "ticker": "463480",
+      "name": "모티브링크",
+      "market": "KOSDAQ",
+      "signals": [
+        "거래량급증",
+        "피보나치38.2%지지"
+      ],
+      "score": 2,
+      "price": 4320,
+      "change_rate": -4.0,
+      "volume": 5381961,
+      "volume_ratio": 88.81,
+      "rsi": 39.8
+    },
+    {
+      "ticker": "469750",
+      "name": "아이비젼웍스",
+      "market": "KOSDAQ",
+      "signals": [
+        "MACD골든크로스",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 641,
+      "change_rate": -2.88,
+      "volume": 48132,
+      "volume_ratio": 0.23,
+      "rsi": 32.8
+    },
+    {
+      "ticker": "484590",
+      "name": "삼양컴텍",
+      "market": "KOSDAQ",
+      "signals": [
+        "MACD골든크로스",
+        "피보나치38.2%지지"
+      ],
+      "score": 2,
+      "price": 6070,
+      "change_rate": -1.94,
+      "volume": 69774,
+      "volume_ratio": 0.27,
+      "rsi": 38.4
+    },
+    {
+      "ticker": "900310",
+      "name": "컬러레이",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 1951,
+      "change_rate": -3.18,
+      "volume": 6393,
+      "volume_ratio": 0.35,
+      "rsi": 63.2
+    },
+    {
+      "ticker": "950170",
+      "name": "JTC",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치50.0%지지"
+      ],
+      "score": 2,
+      "price": 4845,
+      "change_rate": -0.41,
+      "volume": 12400,
+      "volume_ratio": 0.19,
+      "rsi": 49.5
+    },
+    {
+      "ticker": "950220",
+      "name": "네오이뮨텍",
+      "market": "KOSDAQ",
+      "signals": [
+        "정배열",
+        "피보나치23.6%지지"
+      ],
+      "score": 2,
+      "price": 1390,
+      "change_rate": -1.91,
+      "volume": 15946,
+      "volume_ratio": 0.1,
+      "rsi": 57.8
+    }
+  ]
 }
