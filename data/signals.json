@@ -1,8 +1,9 @@
 {
-  "update_time": "2026-07-16 02:31:01",
+  "update_time": "2026-07-16 02:48:02",
   "market": "KOSPI+KOSDAQ",
   "total_scanned": 2763,
   "total_signals": 115,
+  "wave_basis_note": "일봉(종가) 기준 · ZigZag 8% 스윙 전환점으로 구간을 나눈 단순화된 파동 카운트입니다. 정통 엘리어트파동 이론의 세부 규칙(파동 간 피보나치 비율, 3파 최단파동 금지 등)까지 전부 검증한 것은 아니며, 참고용 스윙 위치 표시로만 활용해주세요.",
   "stocks": [
     {
       "ticker": "009810",
@@ -18,7 +19,13 @@
       "change_rate": 0.82,
       "volume": 2797,
       "volume_ratio": 0.15,
-      "rsi": 58.4
+      "rsi": 58.4,
+      "wave_direction": "상승",
+      "wave_number": 4,
+      "wave_progress_pct": 76.8,
+      "buy_point": 1907,
+      "target_price": 2093,
+      "stop_loss": 1761
     },
     {
       "ticker": "065060",
@@ -34,7 +41,13 @@
       "change_rate": -5.54,
       "volume": 22911,
       "volume_ratio": 0.84,
-      "rsi": 53.3
+      "rsi": 53.3,
+      "wave_direction": "상승",
+      "wave_number": 2,
+      "wave_progress_pct": 109.9,
+      "buy_point": 2879,
+      "target_price": 3148,
+      "stop_loss": 2518
     },
     {
       "ticker": "000220",
@@ -49,7 +62,13 @@
       "change_rate": -0.54,
       "volume": 38449,
       "volume_ratio": 0.46,
-      "rsi": 45.9
+      "rsi": 45.9,
+      "wave_direction": "하락",
+      "wave_number": 4,
+      "wave_progress_pct": 110.4,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 3519
     },
     {
       "ticker": "000270",
@@ -64,7 +83,13 @@
       "change_rate": 0.62,
       "volume": 262713,
       "volume_ratio": 0.23,
-      "rsi": 46.7
+      "rsi": 46.7,
+      "wave_direction": "하락",
+      "wave_number": 4,
+      "wave_progress_pct": 58.3,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 138605
     },
     {
       "ticker": "001450",
@@ -79,7 +104,13 @@
       "change_rate": 2.44,
       "volume": 183979,
       "volume_ratio": 0.42,
-      "rsi": 55.0
+      "rsi": 55.0,
+      "wave_direction": "상승",
+      "wave_number": 4,
+      "wave_progress_pct": 50.4,
+      "buy_point": 36532,
+      "target_price": 43113,
+      "stop_loss": 33712
     },
     {
       "ticker": "001940",
@@ -94,7 +125,13 @@
       "change_rate": -0.59,
       "volume": 1787,
       "volume_ratio": 0.2,
-      "rsi": 55.1
+      "rsi": 55.1,
+      "wave_direction": "상승",
+      "wave_number": 2,
+      "wave_progress_pct": 65.8,
+      "buy_point": 23316,
+      "target_price": 29635,
+      "stop_loss": 19943
     },
     {
       "ticker": "002360",
@@ -109,7 +146,13 @@
       "change_rate": -2.75,
       "volume": 12154,
       "volume_ratio": 0.22,
-      "rsi": 55.7
+      "rsi": 55.7,
+      "wave_direction": "상승",
+      "wave_number": 4,
+      "wave_progress_pct": 89.2,
+      "buy_point": 1780,
+      "target_price": 1900,
+      "stop_loss": 1654
     },
     {
       "ticker": "003465",
@@ -124,7 +167,13 @@
       "change_rate": 0.0,
       "volume": 4,
       "volume_ratio": 0.0,
-      "rsi": 48.3
+      "rsi": 48.3,
+      "wave_direction": "하락",
+      "wave_number": 2,
+      "wave_progress_pct": 42.1,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 2888
     },
     {
       "ticker": "003690",
@@ -139,7 +188,13 @@
       "change_rate": -1.08,
       "volume": 39625,
       "volume_ratio": 0.09,
-      "rsi": 55.0
+      "rsi": 55.0,
+      "wave_direction": "상승",
+      "wave_number": 1,
+      "wave_progress_pct": 83.0,
+      "buy_point": 13225,
+      "target_price": 14432,
+      "stop_loss": 12161
     },
     {
       "ticker": "003850",
@@ -154,7 +209,13 @@
       "change_rate": 0.73,
       "volume": 27143,
       "volume_ratio": 0.22,
-      "rsi": 45.7
+      "rsi": 45.7,
+      "wave_direction": "하락",
+      "wave_number": 3,
+      "wave_progress_pct": 97.7,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 7866
     },
     {
       "ticker": "004270",
@@ -169,7 +230,13 @@
       "change_rate": -0.55,
       "volume": 1072,
       "volume_ratio": 0.07,
-      "rsi": 57.4
+      "rsi": 57.4,
+      "wave_direction": "상승",
+      "wave_number": 2,
+      "wave_progress_pct": 97.7,
+      "buy_point": 6949,
+      "target_price": 7523,
+      "stop_loss": 6301
     },
     {
       "ticker": "004545",
@@ -184,7 +251,13 @@
       "change_rate": 11.51,
       "volume": 10139,
       "volume_ratio": 4.64,
-      "rsi": 42.9
+      "rsi": 42.9,
+      "wave_direction": "상승",
+      "wave_number": 3,
+      "wave_progress_pct": 70.9,
+      "buy_point": 6246,
+      "target_price": 7305,
+      "stop_loss": 5576
     },
     {
       "ticker": "004990",
@@ -199,7 +272,13 @@
       "change_rate": 0.88,
       "volume": 30426,
       "volume_ratio": 0.16,
-      "rsi": 39.9
+      "rsi": 39.9,
+      "wave_direction": "하락",
+      "wave_number": 2,
+      "wave_progress_pct": 102.7,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 21755
     },
     {
       "ticker": "005360",
@@ -214,7 +293,13 @@
       "change_rate": 25.25,
       "volume": 14430677,
       "volume_ratio": 7.35,
-      "rsi": 93.5
+      "rsi": 93.5,
+      "wave_direction": null,
+      "wave_number": null,
+      "wave_progress_pct": null,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": null
     },
     {
       "ticker": "005430",
@@ -229,7 +314,13 @@
       "change_rate": -2.68,
       "volume": 71368,
       "volume_ratio": 5.12,
-      "rsi": 52.6
+      "rsi": 52.6,
+      "wave_direction": "상승",
+      "wave_number": 1,
+      "wave_progress_pct": 36.9,
+      "buy_point": 81933,
+      "target_price": 93519,
+      "stop_loss": 77812
     },
     {
       "ticker": "005710",
@@ -244,7 +335,13 @@
       "change_rate": 0.67,
       "volume": 23889,
       "volume_ratio": 2.08,
-      "rsi": 47.3
+      "rsi": 47.3,
+      "wave_direction": "하락",
+      "wave_number": 5,
+      "wave_progress_pct": 55.0,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 9975
     },
     {
       "ticker": "005950",
@@ -259,7 +356,13 @@
       "change_rate": -4.49,
       "volume": 120874,
       "volume_ratio": 0.15,
-      "rsi": 48.6
+      "rsi": 48.6,
+      "wave_direction": "상승",
+      "wave_number": 3,
+      "wave_progress_pct": 40.8,
+      "buy_point": 12627,
+      "target_price": 15003,
+      "stop_loss": 11799
     },
     {
       "ticker": "006200",
@@ -274,7 +377,13 @@
       "change_rate": -3.82,
       "volume": 8764,
       "volume_ratio": 0.15,
-      "rsi": 53.6
+      "rsi": 53.6,
+      "wave_direction": "상승",
+      "wave_number": 3,
+      "wave_progress_pct": 55.1,
+      "buy_point": 2343,
+      "target_price": 2571,
+      "stop_loss": 2214
     },
     {
       "ticker": "007540",
@@ -289,7 +398,13 @@
       "change_rate": 1.15,
       "volume": 29127,
       "volume_ratio": 6.03,
-      "rsi": 53.7
+      "rsi": 53.7,
+      "wave_direction": null,
+      "wave_number": null,
+      "wave_progress_pct": null,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": null
     },
     {
       "ticker": "011090",
@@ -304,7 +419,13 @@
       "change_rate": 29.95,
       "volume": 1746052,
       "volume_ratio": 6.73,
-      "rsi": 85.2
+      "rsi": 85.2,
+      "wave_direction": "상승",
+      "wave_number": 5,
+      "wave_progress_pct": 237.0,
+      "buy_point": 2057,
+      "target_price": 1909,
+      "stop_loss": 911
     },
     {
       "ticker": "014280",
@@ -319,7 +440,13 @@
       "change_rate": -0.26,
       "volume": 11299,
       "volume_ratio": 0.15,
-      "rsi": 40.8
+      "rsi": 40.8,
+      "wave_direction": "하락",
+      "wave_number": 5,
+      "wave_progress_pct": 78.8,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 3686
     },
     {
       "ticker": "017890",
@@ -334,7 +461,13 @@
       "change_rate": -4.22,
       "volume": 39036,
       "volume_ratio": 0.4,
-      "rsi": 60.0
+      "rsi": 60.0,
+      "wave_direction": "상승",
+      "wave_number": 2,
+      "wave_progress_pct": 114.4,
+      "buy_point": 13344,
+      "target_price": 13971,
+      "stop_loss": 12308
     },
     {
       "ticker": "019210",
@@ -349,7 +482,13 @@
       "change_rate": -2.51,
       "volume": 230951,
       "volume_ratio": 0.21,
-      "rsi": 57.0
+      "rsi": 57.0,
+      "wave_direction": "상승",
+      "wave_number": 4,
+      "wave_progress_pct": 48.9,
+      "buy_point": 22058,
+      "target_price": 28508,
+      "stop_loss": 19649
     },
     {
       "ticker": "019550",
@@ -364,7 +503,13 @@
       "change_rate": -1.57,
       "volume": 74119,
       "volume_ratio": 0.21,
-      "rsi": 52.4
+      "rsi": 52.4,
+      "wave_direction": "상승",
+      "wave_number": 2,
+      "wave_progress_pct": 30.8,
+      "buy_point": 925,
+      "target_price": 1038,
+      "stop_loss": 887
     },
     {
       "ticker": "023150",
@@ -379,7 +524,13 @@
       "change_rate": -1.6,
       "volume": 1362,
       "volume_ratio": 0.06,
-      "rsi": 48.3
+      "rsi": 48.3,
+      "wave_direction": "상승",
+      "wave_number": 1,
+      "wave_progress_pct": 84.1,
+      "buy_point": 4168,
+      "target_price": 4499,
+      "stop_loss": 3861
     },
     {
       "ticker": "024850",
@@ -394,7 +545,13 @@
       "change_rate": -7.94,
       "volume": 741019,
       "volume_ratio": 2.82,
-      "rsi": 45.7
+      "rsi": 45.7,
+      "wave_direction": "상승",
+      "wave_number": 4,
+      "wave_progress_pct": 66.3,
+      "buy_point": 10085,
+      "target_price": 13232,
+      "stop_loss": 8418
     },
     {
       "ticker": "027040",
@@ -409,7 +566,13 @@
       "change_rate": -1.83,
       "volume": 34962,
       "volume_ratio": 0.26,
-      "rsi": 50.5
+      "rsi": 50.5,
+      "wave_direction": "상승",
+      "wave_number": 3,
+      "wave_progress_pct": 15.8,
+      "buy_point": 1852,
+      "target_price": 2395,
+      "stop_loss": 1770
     },
     {
       "ticker": "030720",
@@ -424,7 +587,13 @@
       "change_rate": -8.57,
       "volume": 662338,
       "volume_ratio": 9.06,
-      "rsi": 57.0
+      "rsi": 57.0,
+      "wave_direction": "하락",
+      "wave_number": 5,
+      "wave_progress_pct": 36.8,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 6080
     },
     {
       "ticker": "033250",
@@ -439,7 +608,13 @@
       "change_rate": -3.21,
       "volume": 715145,
       "volume_ratio": 10.96,
-      "rsi": 53.8
+      "rsi": 53.8,
+      "wave_direction": "상승",
+      "wave_number": 1,
+      "wave_progress_pct": 113.0,
+      "buy_point": 3337,
+      "target_price": 3713,
+      "stop_loss": 2822
     },
     {
       "ticker": "033340",
@@ -454,7 +629,13 @@
       "change_rate": 29.9,
       "volume": 8288150,
       "volume_ratio": 5.82,
-      "rsi": 39.1
+      "rsi": 39.1,
+      "wave_direction": "상승",
+      "wave_number": 2,
+      "wave_progress_pct": 90.4,
+      "buy_point": 483,
+      "target_price": 579,
+      "stop_loss": 399
     },
     {
       "ticker": "033540",
@@ -469,7 +650,13 @@
       "change_rate": -0.94,
       "volume": 8874,
       "volume_ratio": 0.03,
-      "rsi": 53.1
+      "rsi": 53.1,
+      "wave_direction": "상승",
+      "wave_number": 3,
+      "wave_progress_pct": 98.1,
+      "buy_point": 889,
+      "target_price": 993,
+      "stop_loss": 779
     },
     {
       "ticker": "035620",
@@ -484,7 +671,13 @@
       "change_rate": 16.79,
       "volume": 526519,
       "volume_ratio": 5.31,
-      "rsi": 53.2
+      "rsi": 53.2,
+      "wave_direction": "상승",
+      "wave_number": 2,
+      "wave_progress_pct": 23.9,
+      "buy_point": 742,
+      "target_price": 1448,
+      "stop_loss": 637
     },
     {
       "ticker": "036800",
@@ -499,7 +692,13 @@
       "change_rate": 0.34,
       "volume": 6910,
       "volume_ratio": 0.29,
-      "rsi": 53.5
+      "rsi": 53.5,
+      "wave_direction": "상승",
+      "wave_number": 4,
+      "wave_progress_pct": 40.5,
+      "buy_point": 28451,
+      "target_price": 37034,
+      "stop_loss": 25823
     },
     {
       "ticker": "037710",
@@ -514,7 +713,13 @@
       "change_rate": -8.19,
       "volume": 76842,
       "volume_ratio": 0.09,
-      "rsi": 51.4
+      "rsi": 51.4,
+      "wave_direction": "하락",
+      "wave_number": 3,
+      "wave_progress_pct": 104.0,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 41515
     },
     {
       "ticker": "037950",
@@ -529,7 +734,13 @@
       "change_rate": -1.52,
       "volume": 1991,
       "volume_ratio": 0.05,
-      "rsi": 53.2
+      "rsi": 53.2,
+      "wave_direction": "하락",
+      "wave_number": 5,
+      "wave_progress_pct": 33.9,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 2769
     },
     {
       "ticker": "039830",
@@ -544,7 +755,13 @@
       "change_rate": -2.0,
       "volume": 6813,
       "volume_ratio": 0.06,
-      "rsi": 52.4
+      "rsi": 52.4,
+      "wave_direction": "하락",
+      "wave_number": 4,
+      "wave_progress_pct": 52.8,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 18154
     },
     {
       "ticker": "040610",
@@ -559,7 +776,13 @@
       "change_rate": -2.34,
       "volume": 11637,
       "volume_ratio": 0.28,
-      "rsi": 51.5
+      "rsi": 51.5,
+      "wave_direction": "하락",
+      "wave_number": 5,
+      "wave_progress_pct": 42.9,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 2978
     },
     {
       "ticker": "041830",
@@ -574,7 +797,13 @@
       "change_rate": -4.68,
       "volume": 19460,
       "volume_ratio": 0.13,
-      "rsi": 53.0
+      "rsi": 53.0,
+      "wave_direction": "하락",
+      "wave_number": 5,
+      "wave_progress_pct": 41.0,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 50255
     },
     {
       "ticker": "043340",
@@ -589,7 +818,13 @@
       "change_rate": -0.12,
       "volume": 4665,
       "volume_ratio": 0.03,
-      "rsi": 51.7
+      "rsi": 51.7,
+      "wave_direction": "하락",
+      "wave_number": 4,
+      "wave_progress_pct": 58.5,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 766
     },
     {
       "ticker": "043910",
@@ -604,7 +839,13 @@
       "change_rate": -1.12,
       "volume": 33736,
       "volume_ratio": 0.67,
-      "rsi": 54.3
+      "rsi": 54.3,
+      "wave_direction": "상승",
+      "wave_number": 4,
+      "wave_progress_pct": 51.0,
+      "buy_point": 3002,
+      "target_price": 3481,
+      "stop_loss": 2788
     },
     {
       "ticker": "044380",
@@ -619,7 +860,13 @@
       "change_rate": 30.0,
       "volume": 421519,
       "volume_ratio": 3.27,
-      "rsi": 51.8
+      "rsi": 51.8,
+      "wave_direction": "상승",
+      "wave_number": 5,
+      "wave_progress_pct": 114.8,
+      "buy_point": 921,
+      "target_price": 1073,
+      "stop_loss": 715
     },
     {
       "ticker": "049080",
@@ -634,7 +881,13 @@
       "change_rate": 16.62,
       "volume": 3901737,
       "volume_ratio": 2.16,
-      "rsi": 84.6
+      "rsi": 84.6,
+      "wave_direction": "상승",
+      "wave_number": 4,
+      "wave_progress_pct": 275.1,
+      "buy_point": 10133,
+      "target_price": 8688,
+      "stop_loss": 4307
     },
     {
       "ticker": "049470",
@@ -649,7 +902,13 @@
       "change_rate": -4.33,
       "volume": 5871,
       "volume_ratio": 0.15,
-      "rsi": 49.2
+      "rsi": 49.2,
+      "wave_direction": "상승",
+      "wave_number": 3,
+      "wave_progress_pct": 33.3,
+      "buy_point": 1381,
+      "target_price": 1833,
+      "stop_loss": 1268
     },
     {
       "ticker": "053060",
@@ -664,7 +923,13 @@
       "change_rate": -0.35,
       "volume": 4758,
       "volume_ratio": 0.03,
-      "rsi": 53.4
+      "rsi": 53.4,
+      "wave_direction": "하락",
+      "wave_number": 5,
+      "wave_progress_pct": 41.0,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 1363
     },
     {
       "ticker": "053160",
@@ -679,7 +944,13 @@
       "change_rate": -0.33,
       "volume": 11362,
       "volume_ratio": 0.38,
-      "rsi": 51.2
+      "rsi": 51.2,
+      "wave_direction": "상승",
+      "wave_number": 3,
+      "wave_progress_pct": 50.0,
+      "buy_point": 8867,
+      "target_price": 9888,
+      "stop_loss": 8369
     },
     {
       "ticker": "055550",
@@ -694,7 +965,13 @@
       "change_rate": -0.75,
       "volume": 506142,
       "volume_ratio": 0.33,
-      "rsi": 56.4
+      "rsi": 56.4,
+      "wave_direction": "상승",
+      "wave_number": 1,
+      "wave_progress_pct": 98.7,
+      "buy_point": 100808,
+      "target_price": 110807,
+      "stop_loss": 89768
     },
     {
       "ticker": "065950",
@@ -709,7 +986,13 @@
       "change_rate": -2.91,
       "volume": 3135762,
       "volume_ratio": 11.63,
-      "rsi": 61.5
+      "rsi": 61.5,
+      "wave_direction": "상승",
+      "wave_number": 1,
+      "wave_progress_pct": 176.1,
+      "buy_point": 1124,
+      "target_price": 1145,
+      "stop_loss": 981
     },
     {
       "ticker": "066670",
@@ -724,7 +1007,13 @@
       "change_rate": 3.69,
       "volume": 10311,
       "volume_ratio": 0.51,
-      "rsi": 50.0
+      "rsi": 50.0,
+      "wave_direction": "하락",
+      "wave_number": 5,
+      "wave_progress_pct": 68.6,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 2403
     },
     {
       "ticker": "066900",
@@ -739,7 +1028,13 @@
       "change_rate": -1.62,
       "volume": 736,
       "volume_ratio": 0.1,
-      "rsi": 54.0
+      "rsi": 54.0,
+      "wave_direction": "하락",
+      "wave_number": 3,
+      "wave_progress_pct": 11.5,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 1729
     },
     {
       "ticker": "069730",
@@ -754,7 +1049,13 @@
       "change_rate": -1.61,
       "volume": 4667,
       "volume_ratio": 0.06,
-      "rsi": 54.7
+      "rsi": 54.7,
+      "wave_direction": "상승",
+      "wave_number": 4,
+      "wave_progress_pct": 87.3,
+      "buy_point": 5273,
+      "target_price": 5793,
+      "stop_loss": 4792
     },
     {
       "ticker": "069920",
@@ -769,7 +1070,13 @@
       "change_rate": 30.0,
       "volume": 576419,
       "volume_ratio": 2.82,
-      "rsi": 55.0
+      "rsi": 55.0,
+      "wave_direction": "상승",
+      "wave_number": 1,
+      "wave_progress_pct": 147.3,
+      "buy_point": 784,
+      "target_price": 890,
+      "stop_loss": 508
     },
     {
       "ticker": "071950",
@@ -784,7 +1091,13 @@
       "change_rate": 14.05,
       "volume": 431113,
       "volume_ratio": 5.24,
-      "rsi": 64.9
+      "rsi": 64.9,
+      "wave_direction": "상승",
+      "wave_number": 3,
+      "wave_progress_pct": 160.4,
+      "buy_point": 2181,
+      "target_price": 2297,
+      "stop_loss": 1735
     },
     {
       "ticker": "072130",
@@ -799,7 +1112,13 @@
       "change_rate": -1.33,
       "volume": 14843,
       "volume_ratio": 0.19,
-      "rsi": 49.7
+      "rsi": 49.7,
+      "wave_direction": "상승",
+      "wave_number": 4,
+      "wave_progress_pct": 93.8,
+      "buy_point": 5008,
+      "target_price": 5340,
+      "stop_loss": 4635
     },
     {
       "ticker": "072870",
@@ -814,7 +1133,13 @@
       "change_rate": -0.53,
       "volume": 1958,
       "volume_ratio": 0.06,
-      "rsi": 49.0
+      "rsi": 49.0,
+      "wave_direction": "상승",
+      "wave_number": 4,
+      "wave_progress_pct": 55.4,
+      "buy_point": 12754,
+      "target_price": 13963,
+      "stop_loss": 12063
     },
     {
       "ticker": "073570",
@@ -829,7 +1154,13 @@
       "change_rate": -1.91,
       "volume": 40085,
       "volume_ratio": 0.61,
-      "rsi": 46.6
+      "rsi": 46.6,
+      "wave_direction": "상승",
+      "wave_number": 2,
+      "wave_progress_pct": 3.6,
+      "buy_point": 1616,
+      "target_price": 3845,
+      "stop_loss": 1544
     },
     {
       "ticker": "078130",
@@ -844,7 +1175,13 @@
       "change_rate": -1.01,
       "volume": 26798,
       "volume_ratio": 0.14,
-      "rsi": 59.4
+      "rsi": 59.4,
+      "wave_direction": "상승",
+      "wave_number": 5,
+      "wave_progress_pct": 97.6,
+      "buy_point": 3783,
+      "target_price": 4064,
+      "stop_loss": 3459
     },
     {
       "ticker": "080530",
@@ -859,7 +1196,13 @@
       "change_rate": 0.2,
       "volume": 1678,
       "volume_ratio": 0.09,
-      "rsi": 58.3
+      "rsi": 58.3,
+      "wave_direction": "상승",
+      "wave_number": 5,
+      "wave_progress_pct": 33.1,
+      "buy_point": 2335,
+      "target_price": 3723,
+      "stop_loss": 2028
     },
     {
       "ticker": "081660",
@@ -874,7 +1217,13 @@
       "change_rate": 1.0,
       "volume": 18121,
       "volume_ratio": 0.09,
-      "rsi": 54.6
+      "rsi": 54.6,
+      "wave_direction": "하락",
+      "wave_number": 1,
+      "wave_progress_pct": 47.9,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 43320
     },
     {
       "ticker": "082740",
@@ -889,7 +1238,13 @@
       "change_rate": -2.65,
       "volume": 246814,
       "volume_ratio": 0.3,
-      "rsi": 41.7
+      "rsi": 41.7,
+      "wave_direction": "상승",
+      "wave_number": 1,
+      "wave_progress_pct": 27.4,
+      "buy_point": 44701,
+      "target_price": 58372,
+      "stop_loss": 41748
     },
     {
       "ticker": "083640",
@@ -904,7 +1259,13 @@
       "change_rate": -2.92,
       "volume": 10419,
       "volume_ratio": 0.05,
-      "rsi": 50.2
+      "rsi": 50.2,
+      "wave_direction": "하락",
+      "wave_number": 2,
+      "wave_progress_pct": 30.0,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 1104
     },
     {
       "ticker": "086900",
@@ -919,7 +1280,13 @@
       "change_rate": -0.69,
       "volume": 4522,
       "volume_ratio": 0.13,
-      "rsi": 38.2
+      "rsi": 38.2,
+      "wave_direction": "하락",
+      "wave_number": 1,
+      "wave_progress_pct": 120.0,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 68305
     },
     {
       "ticker": "093190",
@@ -934,7 +1301,13 @@
       "change_rate": -0.99,
       "volume": 3050,
       "volume_ratio": 0.15,
-      "rsi": 51.1
+      "rsi": 51.1,
+      "wave_direction": "하락",
+      "wave_number": 5,
+      "wave_progress_pct": 51.0,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 7619
     },
     {
       "ticker": "096870",
@@ -949,7 +1322,13 @@
       "change_rate": -1.66,
       "volume": 13240,
       "volume_ratio": 0.07,
-      "rsi": 58.6
+      "rsi": 58.6,
+      "wave_direction": "상승",
+      "wave_number": 4,
+      "wave_progress_pct": 88.3,
+      "buy_point": 2263,
+      "target_price": 2481,
+      "stop_loss": 2058
     },
     {
       "ticker": "102370",
@@ -964,7 +1343,13 @@
       "change_rate": 0.16,
       "volume": 8642,
       "volume_ratio": 0.08,
-      "rsi": 52.4
+      "rsi": 52.4,
+      "wave_direction": "하락",
+      "wave_number": 3,
+      "wave_progress_pct": 34.6,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 2954
     },
     {
       "ticker": "105560",
@@ -979,7 +1364,13 @@
       "change_rate": -0.72,
       "volume": 459537,
       "volume_ratio": 0.27,
-      "rsi": 62.5
+      "rsi": 62.5,
+      "wave_direction": "상승",
+      "wave_number": 1,
+      "wave_progress_pct": 136.6,
+      "buy_point": 168458,
+      "target_price": 178174,
+      "stop_loss": 146314
     },
     {
       "ticker": "115180",
@@ -994,7 +1385,13 @@
       "change_rate": -4.27,
       "volume": 17824,
       "volume_ratio": 0.13,
-      "rsi": 36.5
+      "rsi": 36.5,
+      "wave_direction": "상승",
+      "wave_number": 4,
+      "wave_progress_pct": 9.4,
+      "buy_point": 17466,
+      "target_price": 25370,
+      "stop_loss": 16748
     },
     {
       "ticker": "115530",
@@ -1009,7 +1406,13 @@
       "change_rate": -2.82,
       "volume": 13015,
       "volume_ratio": 0.38,
-      "rsi": 53.6
+      "rsi": 53.6,
+      "wave_direction": "상승",
+      "wave_number": 2,
+      "wave_progress_pct": 44.3,
+      "buy_point": 1788,
+      "target_price": 2007,
+      "stop_loss": 1694
     },
     {
       "ticker": "123330",
@@ -1024,7 +1427,13 @@
       "change_rate": 5.95,
       "volume": 124901,
       "volume_ratio": 0.43,
-      "rsi": 54.3
+      "rsi": 54.3,
+      "wave_direction": "하락",
+      "wave_number": 1,
+      "wave_progress_pct": 46.8,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 24106
     },
     {
       "ticker": "130740",
@@ -1039,7 +1448,13 @@
       "change_rate": 1.81,
       "volume": 11634,
       "volume_ratio": 0.16,
-      "rsi": 50.3
+      "rsi": 50.3,
+      "wave_direction": "하락",
+      "wave_number": 4,
+      "wave_progress_pct": 29.5,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 1871
     },
     {
       "ticker": "131290",
@@ -1054,7 +1469,13 @@
       "change_rate": -6.68,
       "volume": 31787,
       "volume_ratio": 0.24,
-      "rsi": 55.2
+      "rsi": 55.2,
+      "wave_direction": "상승",
+      "wave_number": 5,
+      "wave_progress_pct": 79.8,
+      "buy_point": 249647,
+      "target_price": 290144,
+      "stop_loss": 219520
     },
     {
       "ticker": "137940",
@@ -1069,7 +1490,13 @@
       "change_rate": -0.69,
       "volume": 5043,
       "volume_ratio": 0.1,
-      "rsi": 60.4
+      "rsi": 60.4,
+      "wave_direction": "하락",
+      "wave_number": 1,
+      "wave_progress_pct": 14.8,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 2056
     },
     {
       "ticker": "145995",
@@ -1084,7 +1511,13 @@
       "change_rate": 0.0,
       "volume": 53,
       "volume_ratio": 0.05,
-      "rsi": 56.1
+      "rsi": 56.1,
+      "wave_direction": null,
+      "wave_number": null,
+      "wave_progress_pct": null,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": null
     },
     {
       "ticker": "148930",
@@ -1099,7 +1532,13 @@
       "change_rate": -3.43,
       "volume": 38474,
       "volume_ratio": 0.55,
-      "rsi": 53.0
+      "rsi": 53.0,
+      "wave_direction": "상승",
+      "wave_number": 2,
+      "wave_progress_pct": 95.7,
+      "buy_point": 2901,
+      "target_price": 3531,
+      "stop_loss": 2307
     },
     {
       "ticker": "155660",
@@ -1114,7 +1553,13 @@
       "change_rate": -1.66,
       "volume": 9359,
       "volume_ratio": 0.17,
-      "rsi": 54.5
+      "rsi": 54.5,
+      "wave_direction": "상승",
+      "wave_number": 4,
+      "wave_progress_pct": 97.8,
+      "buy_point": 4271,
+      "target_price": 4572,
+      "stop_loss": 3920
     },
     {
       "ticker": "161390",
@@ -1129,7 +1574,13 @@
       "change_rate": 0.42,
       "volume": 62775,
       "volume_ratio": 0.16,
-      "rsi": 57.7
+      "rsi": 57.7,
+      "wave_direction": "상승",
+      "wave_number": 2,
+      "wave_progress_pct": 87.5,
+      "buy_point": 67254,
+      "target_price": 77199,
+      "stop_loss": 58702
     },
     {
       "ticker": "161890",
@@ -1144,7 +1595,13 @@
       "change_rate": -1.12,
       "volume": 95089,
       "volume_ratio": 0.2,
-      "rsi": 54.4
+      "rsi": 54.4,
+      "wave_direction": "하락",
+      "wave_number": 5,
+      "wave_progress_pct": 75.4,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 100700
     },
     {
       "ticker": "188260",
@@ -1159,7 +1616,13 @@
       "change_rate": -2.58,
       "volume": 297,
       "volume_ratio": 0.02,
-      "rsi": 57.7
+      "rsi": 57.7,
+      "wave_direction": "상승",
+      "wave_number": 2,
+      "wave_progress_pct": 72.2,
+      "buy_point": 2030,
+      "target_price": 2178,
+      "stop_loss": 1911
     },
     {
       "ticker": "199480",
@@ -1174,7 +1637,13 @@
       "change_rate": 1.81,
       "volume": 1318,
       "volume_ratio": 0.05,
-      "rsi": 33.2
+      "rsi": 33.2,
+      "wave_direction": "하락",
+      "wave_number": 3,
+      "wave_progress_pct": 82.7,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 2664
     },
     {
       "ticker": "205470",
@@ -1189,7 +1658,13 @@
       "change_rate": -0.68,
       "volume": 7246,
       "volume_ratio": 0.1,
-      "rsi": 39.3
+      "rsi": 39.3,
+      "wave_direction": "하락",
+      "wave_number": 5,
+      "wave_progress_pct": 70.4,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 2071
     },
     {
       "ticker": "206560",
@@ -1204,7 +1679,13 @@
       "change_rate": 5.07,
       "volume": 160838,
       "volume_ratio": 1.98,
-      "rsi": 33.6
+      "rsi": 33.6,
+      "wave_direction": "하락",
+      "wave_number": 5,
+      "wave_progress_pct": 121.2,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 1024
     },
     {
       "ticker": "217730",
@@ -1219,7 +1700,13 @@
       "change_rate": 1.3,
       "volume": 1508652,
       "volume_ratio": 2.52,
-      "rsi": 43.8
+      "rsi": 43.8,
+      "wave_direction": "하락",
+      "wave_number": 1,
+      "wave_progress_pct": 110.6,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 2223
     },
     {
       "ticker": "218150",
@@ -1234,7 +1721,13 @@
       "change_rate": 5.2,
       "volume": 3007325,
       "volume_ratio": 7.98,
-      "rsi": 60.1
+      "rsi": 60.1,
+      "wave_direction": "하락",
+      "wave_number": 4,
+      "wave_progress_pct": 20.4,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 2113
     },
     {
       "ticker": "219750",
@@ -1249,7 +1742,13 @@
       "change_rate": 2.78,
       "volume": 6686,
       "volume_ratio": 0.03,
-      "rsi": 60.6
+      "rsi": 60.6,
+      "wave_direction": "하락",
+      "wave_number": 4,
+      "wave_progress_pct": 167.1,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 1791
     },
     {
       "ticker": "222040",
@@ -1264,7 +1763,13 @@
       "change_rate": 3.08,
       "volume": 57537,
       "volume_ratio": 0.29,
-      "rsi": 63.3
+      "rsi": 63.3,
+      "wave_direction": "하락",
+      "wave_number": 3,
+      "wave_progress_pct": 16.7,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 7638
     },
     {
       "ticker": "227950",
@@ -1279,7 +1784,13 @@
       "change_rate": -1.82,
       "volume": 9672,
       "volume_ratio": 0.11,
-      "rsi": 52.8
+      "rsi": 52.8,
+      "wave_direction": "하락",
+      "wave_number": 4,
+      "wave_progress_pct": 38.9,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 1124
     },
     {
       "ticker": "232140",
@@ -1294,7 +1805,13 @@
       "change_rate": -8.66,
       "volume": 259194,
       "volume_ratio": 0.38,
-      "rsi": 33.1
+      "rsi": 33.1,
+      "wave_direction": "하락",
+      "wave_number": 5,
+      "wave_progress_pct": 104.4,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 9414
     },
     {
       "ticker": "234100",
@@ -1309,7 +1826,13 @@
       "change_rate": -2.2,
       "volume": 8540,
       "volume_ratio": 0.15,
-      "rsi": 55.9
+      "rsi": 55.9,
+      "wave_direction": "상승",
+      "wave_number": 1,
+      "wave_progress_pct": 158.1,
+      "buy_point": 2535,
+      "target_price": 2598,
+      "stop_loss": 2278
     },
     {
       "ticker": "255220",
@@ -1324,7 +1847,13 @@
       "change_rate": 5.5,
       "volume": 6777164,
       "volume_ratio": 2.68,
-      "rsi": 41.7
+      "rsi": 41.7,
+      "wave_direction": "하락",
+      "wave_number": 2,
+      "wave_progress_pct": 52.8,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 1386
     },
     {
       "ticker": "256630",
@@ -1339,7 +1868,13 @@
       "change_rate": -1.09,
       "volume": 11501,
       "volume_ratio": 1.33,
-      "rsi": 59.4
+      "rsi": 59.4,
+      "wave_direction": "상승",
+      "wave_number": 2,
+      "wave_progress_pct": 27.8,
+      "buy_point": 4381,
+      "target_price": 5867,
+      "stop_loss": 4067
     },
     {
       "ticker": "258790",
@@ -1354,7 +1889,13 @@
       "change_rate": 2.44,
       "volume": 5582,
       "volume_ratio": 0.14,
-      "rsi": 57.9
+      "rsi": 57.9,
+      "wave_direction": "상승",
+      "wave_number": 5,
+      "wave_progress_pct": 77.0,
+      "buy_point": 4067,
+      "target_price": 4413,
+      "stop_loss": 3782
     },
     {
       "ticker": "263920",
@@ -1369,7 +1910,13 @@
       "change_rate": -0.64,
       "volume": 3709,
       "volume_ratio": 0.17,
-      "rsi": 59.5
+      "rsi": 59.5,
+      "wave_direction": "상승",
+      "wave_number": 3,
+      "wave_progress_pct": 256.2,
+      "buy_point": 3542,
+      "target_price": 3429,
+      "stop_loss": 2905
     },
     {
       "ticker": "270660",
@@ -1384,7 +1931,13 @@
       "change_rate": -3.46,
       "volume": 6052,
       "volume_ratio": 0.06,
-      "rsi": 39.9
+      "rsi": 39.9,
+      "wave_direction": "하락",
+      "wave_number": 4,
+      "wave_progress_pct": 95.6,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 9804
     },
     {
       "ticker": "272210",
@@ -1399,7 +1952,13 @@
       "change_rate": -1.37,
       "volume": 175324,
       "volume_ratio": 0.24,
-      "rsi": 36.8
+      "rsi": 36.8,
+      "wave_direction": "하락",
+      "wave_number": 2,
+      "wave_progress_pct": 97.1,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 61655
     },
     {
       "ticker": "278650",
@@ -1414,7 +1973,13 @@
       "change_rate": -6.65,
       "volume": 520913,
       "volume_ratio": 3.46,
-      "rsi": 41.8
+      "rsi": 41.8,
+      "wave_direction": "상승",
+      "wave_number": 3,
+      "wave_progress_pct": 35.5,
+      "buy_point": 2094,
+      "target_price": 3261,
+      "stop_loss": 1814
     },
     {
       "ticker": "281820",
@@ -1429,7 +1994,13 @@
       "change_rate": -8.2,
       "volume": 88577,
       "volume_ratio": 0.26,
-      "rsi": 53.1
+      "rsi": 53.1,
+      "wave_direction": "하락",
+      "wave_number": 5,
+      "wave_progress_pct": 39.4,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 91485
     },
     {
       "ticker": "290690",
@@ -1444,7 +2015,13 @@
       "change_rate": 0.65,
       "volume": 878001,
       "volume_ratio": 0.27,
-      "rsi": 49.1
+      "rsi": 49.1,
+      "wave_direction": "하락",
+      "wave_number": 2,
+      "wave_progress_pct": 34.3,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 4436
     },
     {
       "ticker": "306040",
@@ -1459,7 +2036,13 @@
       "change_rate": 3.63,
       "volume": 45976,
       "volume_ratio": 0.75,
-      "rsi": 33.7
+      "rsi": 33.7,
+      "wave_direction": "상승",
+      "wave_number": 1,
+      "wave_progress_pct": 6.8,
+      "buy_point": 1716,
+      "target_price": 4263,
+      "stop_loss": 1597
     },
     {
       "ticker": "317400",
@@ -1474,7 +2057,13 @@
       "change_rate": -3.0,
       "volume": 94671,
       "volume_ratio": 0.32,
-      "rsi": 59.9
+      "rsi": 59.9,
+      "wave_direction": "상승",
+      "wave_number": 5,
+      "wave_progress_pct": 63.6,
+      "buy_point": 4743,
+      "target_price": 5129,
+      "stop_loss": 4478
     },
     {
       "ticker": "322780",
@@ -1489,7 +2078,13 @@
       "change_rate": 3.66,
       "volume": 49953,
       "volume_ratio": 0.09,
-      "rsi": 53.8
+      "rsi": 53.8,
+      "wave_direction": "상승",
+      "wave_number": 4,
+      "wave_progress_pct": 57.8,
+      "buy_point": 1917,
+      "target_price": 2547,
+      "stop_loss": 1638
     },
     {
       "ticker": "332370",
@@ -1504,7 +2099,13 @@
       "change_rate": 0.0,
       "volume": 19,
       "volume_ratio": 0.0,
-      "rsi": 56.0
+      "rsi": 56.0,
+      "wave_direction": "상승",
+      "wave_number": 2,
+      "wave_progress_pct": 86.7,
+      "buy_point": 5141,
+      "target_price": 5472,
+      "stop_loss": 4802
     },
     {
       "ticker": "333050",
@@ -1519,7 +2120,13 @@
       "change_rate": -1.14,
       "volume": 728,
       "volume_ratio": 0.06,
-      "rsi": 58.0
+      "rsi": 58.0,
+      "wave_direction": "상승",
+      "wave_number": 2,
+      "wave_progress_pct": 28.1,
+      "buy_point": 4988,
+      "target_price": 7356,
+      "stop_loss": 4522
     },
     {
       "ticker": "359090",
@@ -1534,7 +2141,13 @@
       "change_rate": -0.05,
       "volume": 5289,
       "volume_ratio": 0.06,
-      "rsi": 78.6
+      "rsi": 78.6,
+      "wave_direction": "상승",
+      "wave_number": 5,
+      "wave_progress_pct": 70.2,
+      "buy_point": 1851,
+      "target_price": 2031,
+      "stop_loss": 1722
     },
     {
       "ticker": "373220",
@@ -1549,7 +2162,13 @@
       "change_rate": 1.04,
       "volume": 110185,
       "volume_ratio": 0.24,
-      "rsi": 44.0
+      "rsi": 44.0,
+      "wave_direction": "하락",
+      "wave_number": 2,
+      "wave_progress_pct": 89.9,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 321575
     },
     {
       "ticker": "383220",
@@ -1564,7 +2183,13 @@
       "change_rate": 0.0,
       "volume": 10478,
       "volume_ratio": 0.13,
-      "rsi": 51.0
+      "rsi": 51.0,
+      "wave_direction": "상승",
+      "wave_number": 4,
+      "wave_progress_pct": 41.7,
+      "buy_point": 76475,
+      "target_price": 89354,
+      "stop_loss": 71736
     },
     {
       "ticker": "439090",
@@ -1579,7 +2204,13 @@
       "change_rate": 2.29,
       "volume": 480338,
       "volume_ratio": 1.31,
-      "rsi": 58.7
+      "rsi": 58.7,
+      "wave_direction": "하락",
+      "wave_number": 4,
+      "wave_progress_pct": 13.3,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 16112
     },
     {
       "ticker": "439580",
@@ -1594,7 +2225,13 @@
       "change_rate": -1.41,
       "volume": 25609,
       "volume_ratio": 0.16,
-      "rsi": 32.3
+      "rsi": 32.3,
+      "wave_direction": "하락",
+      "wave_number": 2,
+      "wave_progress_pct": 227.5,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 1591
     },
     {
       "ticker": "453340",
@@ -1609,7 +2246,13 @@
       "change_rate": 2.61,
       "volume": 12615,
       "volume_ratio": 0.23,
-      "rsi": 60.7
+      "rsi": 60.7,
+      "wave_direction": "상승",
+      "wave_number": 4,
+      "wave_progress_pct": 149.3,
+      "buy_point": 17667,
+      "target_price": 18177,
+      "stop_loss": 15993
     },
     {
       "ticker": "457600",
@@ -1624,7 +2267,13 @@
       "change_rate": -4.73,
       "volume": 112194,
       "volume_ratio": 0.33,
-      "rsi": 59.8
+      "rsi": 59.8,
+      "wave_direction": "상승",
+      "wave_number": 5,
+      "wave_progress_pct": 73.9,
+      "buy_point": 2563,
+      "target_price": 3015,
+      "stop_loss": 2263
     },
     {
       "ticker": "460930",
@@ -1639,7 +2288,13 @@
       "change_rate": 4.02,
       "volume": 312187,
       "volume_ratio": 2.25,
-      "rsi": 41.9
+      "rsi": 41.9,
+      "wave_direction": "하락",
+      "wave_number": 4,
+      "wave_progress_pct": 90.1,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 11058
     },
     {
       "ticker": "463480",
@@ -1654,7 +2309,13 @@
       "change_rate": -4.0,
       "volume": 5381961,
       "volume_ratio": 88.81,
-      "rsi": 39.8
+      "rsi": 39.8,
+      "wave_direction": "상승",
+      "wave_number": 5,
+      "wave_progress_pct": 39.8,
+      "buy_point": 4237,
+      "target_price": 4791,
+      "stop_loss": 4022
     },
     {
       "ticker": "469750",
@@ -1669,7 +2330,13 @@
       "change_rate": -2.88,
       "volume": 48132,
       "volume_ratio": 0.23,
-      "rsi": 32.8
+      "rsi": 32.8,
+      "wave_direction": "상승",
+      "wave_number": 3,
+      "wave_progress_pct": 6.7,
+      "buy_point": 624,
+      "target_price": 1436,
+      "stop_loss": 585
     },
     {
       "ticker": "484590",
@@ -1684,7 +2351,13 @@
       "change_rate": -1.94,
       "volume": 69774,
       "volume_ratio": 0.27,
-      "rsi": 38.4
+      "rsi": 38.4,
+      "wave_direction": "하락",
+      "wave_number": 5,
+      "wave_progress_pct": 53.7,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 5766
     },
     {
       "ticker": "900310",
@@ -1699,7 +2372,13 @@
       "change_rate": -3.18,
       "volume": 6393,
       "volume_ratio": 0.35,
-      "rsi": 63.2
+      "rsi": 63.2,
+      "wave_direction": "상승",
+      "wave_number": 4,
+      "wave_progress_pct": 82.8,
+      "buy_point": 1842,
+      "target_price": 2103,
+      "stop_loss": 1632
     },
     {
       "ticker": "950170",
@@ -1714,7 +2393,13 @@
       "change_rate": -0.41,
       "volume": 12400,
       "volume_ratio": 0.19,
-      "rsi": 49.5
+      "rsi": 49.5,
+      "wave_direction": "하락",
+      "wave_number": 3,
+      "wave_progress_pct": 30.5,
+      "buy_point": null,
+      "target_price": null,
+      "stop_loss": 4602
     },
     {
       "ticker": "950220",
@@ -1729,7 +2414,13 @@
       "change_rate": -1.91,
       "volume": 15946,
       "volume_ratio": 0.1,
-      "rsi": 57.8
+      "rsi": 57.8,
+      "wave_direction": "상승",
+      "wave_number": 5,
+      "wave_progress_pct": 29.5,
+      "buy_point": 1340,
+      "target_price": 1819,
+      "stop_loss": 1234
     }
   ]
 }
