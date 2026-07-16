@@ -2,16 +2,18 @@ name: Update Stock Signals
 
 on:
   schedule:
+    # 매주 월~금 07:30 UTC = 한국시간(KST) 16:30
+    # (코스피/코스닥 장마감 15:30 이후, 시세 데이터가 안정적으로 반영되는 시점)
     - cron: "30 7 * * 1-5"
-  workflow_dispatch: {}
+  workflow_dispatch: {}   # Actions 탭에서 "Run workflow" 버튼으로 수동 실행도 가능
 
 permissions:
-  contents: write
+  contents: write   # signals.json을 리포지토리에 다시 commit/push 하기 위해 필요
 
 jobs:
   update-signals:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 30    # GitHub 캐시 기반이라 전체 실행이 보통 1~2분 내로 끝남 (여유 있게 설정)
 
     steps:
       - name: 저장소 체크아웃
@@ -26,6 +28,8 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: 매수신호 계산 스크립트 실행
+        env:
+          DART_API_KEY: ${{ secrets.DART_API_KEY }}   # 설정 안 했으면 빈 값 -> 공시 기능만 자동 비활성화
         run: python update_stocks.py
 
       - name: 결과 커밋 & 푸시
