@@ -1,6 +1,6 @@
 /**
- * dashboard.js
- * data/signals.json 데이터를 가져와 필터링, 검색, 정렬 후 테이블에 화면 렌더링합니다.
+ * dashboard.js (국내 주식 전용)
+ * data/signals.json 데이터를 읽어와 국내 주식 신호들을 렌더링합니다.
  */
 
 (function () {
@@ -16,16 +16,11 @@
 
   async function loadData() {
     try {
-      // 캐시 방지 타임스탬프 추가 호출
       const res = await fetch(`data/signals.json?t=${Date.now()}`);
-      if (!res.ok) throw new Error("네트워크 응답 오류: signals.json을 찾을 수 없습니다.");
+      if (!res.ok) throw new Error("signals.json을 찾을 수 없습니다.");
       
       const data = await res.json();
-
-      // 안전한 예외 처리: 데이터가 비어있거나 형식이 이상할 때 가드 코드
-      if (!data) {
-        throw new Error("JSON 데이터가 비어있습니다.");
-      }
+      if (!data) throw new Error("JSON 데이터 구조가 올바르지 않습니다.");
 
       document.getElementById("updateTime").textContent = data.update_time || "-";
       document.getElementById("statScanned").textContent =
@@ -33,12 +28,11 @@
       document.getElementById("statSignals").textContent =
         (data.total_signals || 0).toLocaleString();
 
-      // stocks가 존재하지 않거나 빈 배열일 때 안전하게 빈 배열 할당
       allStocks = data.stocks && Array.isArray(data.stocks) ? data.stocks : [];
       render();
     } catch (err) {
       tableBody.innerHTML = `<tr><td colspan="7" class="empty-state">
-        데이터를 불러오는 중 문제가 발생했습니다.<br>
+        데이터를 불러오지 못했습니다. <br>
         <span style="font-size: 11px; color: var(--text-dim);">${err.message}</span>
       </td></tr>`;
       console.error(err);
@@ -89,7 +83,7 @@
     }
     meterHtml += "</div>";
 
-    // 뱃지 스타일 맵핑
+    // 4대 신호 뱃지 스타일 매핑
     const tags = (stock.signals || [])
       .map(sig => {
         let colorClass = 'vol';
@@ -136,8 +130,7 @@
     tableBody.innerHTML = sorted.map(renderRow).join("");
   }
 
-  // ---- 이벤트 리스너 설정 ----
-
+  // Event Listeners
   searchBox.addEventListener("input", (e) => {
     currentSearch = e.target.value.trim();
     render();
@@ -159,6 +152,5 @@
     render();
   });
 
-  // 최초 초기화 로드
   loadData();
 })();
