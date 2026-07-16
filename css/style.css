@@ -252,6 +252,9 @@ body {
 
 .signal-table tbody tr:hover { background: #16203866; }
 
+.signal-table tbody tr.row-link { cursor: pointer; }
+.signal-table tbody tr.row-link:hover { background: #1c2942; }
+
 .signal-table tbody td {
   padding: 13px 16px;
   vertical-align: middle;
@@ -316,37 +319,6 @@ body {
   color: #a9b4cc;
   border: 1px solid #263352;
   white-space: nowrap;
-  font-weight: 500;
-}
-
-/* 🌟 4대 매수 기법 신호별 고유 컬러 뱃지 디자인 적용 */
-
-/* 1. RSI 과매도 탈출 (안정적인 블루/민트 계열) */
-.tag-rsi {
-  background: rgba(30, 58, 138, 0.25);
-  color: #60a5fa;
-  border: 1px solid rgba(59, 130, 246, 0.4);
-}
-
-/* 2. 거래량 급증 (강한 힘을 느끼게 하는 에너지 골드/오렌지 계열) */
-.tag-vol {
-  background: rgba(240, 182, 77, 0.12);
-  color: #f0b64d;
-  border: 1px solid rgba(240, 182, 77, 0.4);
-}
-
-/* 3. MACD 골든크로스 (추세 전환을 상징하는 퍼플/네온 바이올렛 계열) */
-.tag-macd {
-  background: rgba(111, 66, 193, 0.2);
-  color: #b18cfd;
-  border: 1px solid rgba(111, 66, 193, 0.4);
-}
-
-/* 4. 피보나치 지지 (정교하고 날카로운 피팅을 보여주는 틸/청록 계열) */
-.tag-fibo {
-  background: rgba(2, 154, 142, 0.2);
-  color: #02e0ce;
-  border: 1px solid rgba(2, 154, 142, 0.4);
 }
 
 .empty-state {
@@ -363,6 +335,76 @@ body {
   line-height: 1.6;
   text-align: center;
 }
+
+/* ---------------- Detail page ---------------- */
+
+.back-link {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 7px 12px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  transition: all 0.15s;
+}
+.back-link:hover { color: var(--text); border-color: var(--text-dim); }
+
+.detail-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.detail-title { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.detail-title h1 { font-size: 22px; margin: 0; }
+
+.detail-price { font-family: var(--font-mono); font-size: 26px; font-weight: 700; text-align: right; }
+.detail-price .unit { font-size: 13px; color: var(--text-muted); font-weight: 400; margin-left: 4px; }
+
+.detail-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 22px;
+}
+.detail-stats .stat-card { padding: 14px 16px; }
+.detail-stats .stat-num { font-size: 20px; }
+
+.chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.chart-card h3 {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0 0 14px;
+  font-weight: 600;
+}
+.chart-wrap { position: relative; height: 340px; }
+.chart-wrap.volume { height: 120px; }
+
+.legend-row {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+.legend-dot { width: 10px; height: 3px; border-radius: 2px; display: inline-block; }
 
 /* ---------------- Responsive ---------------- */
 

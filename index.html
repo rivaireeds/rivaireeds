@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>국내주식 매수신호 스캐너 & 차트 분석기</title>
+<title>국내주식 매수신호 스캐너</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -29,28 +29,28 @@
   <section class="stat-row" id="statRow">
     <div class="stat-card">
       <div class="stat-num" id="statScanned">-</div>
-      <div class="stat-label">스캔 완료 (국내 전 종목)</div>
+      <div class="stat-label">전체 스캔 종목</div>
     </div>
     <div class="stat-card highlight">
       <div class="stat-num" id="statSignals">-</div>
-      <div class="stat-label">매수 신호 포착 종목</div>
+      <div class="stat-label">신호 발견 종목</div>
     </div>
     <div class="stat-card">
-      <div class="stat-num" id="statFavorites" style="color: #f0b64d;">0</div>
-      <div class="stat-label">등록된 관심종목</div>
+      <div class="stat-num" id="statMarket">KOSPI+KOSDAQ</div>
+      <div class="stat-label">대상 시장</div>
     </div>
   </section>
 
   <section class="control-row">
-    <input type="text" id="searchBox" class="search-box" placeholder="종목명 또는 초성, 티커 검색 (예: 삼성전자, 005930)" />
+    <input type="text" id="searchBox" class="search-box" placeholder="종목명 또는 티커 검색 (예: 삼성전자, 005930)" />
 
     <div class="filter-chips" id="filterChips">
       <button class="chip active" data-filter="ALL">전체</button>
-      <button class="chip" data-filter="FAVORITE" style="color: #f0b64d; font-weight: 600;">★ 관심종목</button>
+      <button class="chip" data-filter="정배열">정배열</button>
       <button class="chip" data-filter="RSI과매도탈출">RSI탈출</button>
-      <button class="chip" data-filter="거래량급증">거래량급증</button>
       <button class="chip" data-filter="MACD골든크로스">MACD</button>
-      <button class="chip" data-filter="피보나치지지">피보나치지지</button>
+      <button class="chip" data-filter="거래량급증">거래량급증</button>
+      <button class="chip" data-filter="피보나치">피보나치지지</button>
     </div>
 
     <select id="sortSelect" class="sort-select">
@@ -61,13 +61,32 @@
     </select>
   </section>
 
-  <div class="main-layout">
-    <section class="table-section">
-      <table class="signal-table">
-        <thead>
-          <tr>
-            <th style="width: 40px; text-align: center;">관심</th>
-            <th class="col-score">신호</th>
-            <th class="col-name">종목</th>
-            <th class="col-price">현재가</th>
-            <th class="col-change
+  <section class="table-section">
+    <table class="signal-table">
+      <thead>
+        <tr>
+          <th class="col-score">신호</th>
+          <th class="col-name">종목</th>
+          <th class="col-price">현재가</th>
+          <th class="col-change">등락률</th>
+          <th class="col-rsi">RSI</th>
+          <th class="col-vol">거래량배수</th>
+          <th class="col-tags">감지된 신호</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <tr><td colspan="7" class="empty-state">데이터를 불러오는 중입니다...</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <p class="footnote">
+    본 페이지는 기술적 지표 기반 자동 스캔 결과이며, 투자 조언이나 매수·매도 추천이 아닙니다.
+    데이터는 매매일 장마감 후 자동 갱신되며, 지연·오류가 있을 수 있습니다. 투자 판단과 책임은 본인에게 있습니다.
+  </p>
+
+</main>
+
+<script src="js/dashboard.js"></script>
+</body>
+</html>
