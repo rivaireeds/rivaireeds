@@ -120,7 +120,7 @@ body {
 
 .stat-row {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 14px;
   margin-bottom: 28px;
 }
@@ -462,6 +462,142 @@ body {
   padding-top: 10px;
   border-top: 1px solid var(--border);
 }
+
+/* ---------------- 새로고침 버튼 ---------------- */
+
+.refresh-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-family: var(--font-kr);
+  font-size: 12px;
+  padding: 7px 12px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.refresh-btn:hover { color: var(--text); border-color: var(--accent); }
+.refresh-btn:disabled { opacity: 0.6; cursor: default; }
+.refresh-icon { display: inline-block; font-size: 13px; }
+.refresh-btn.spinning .refresh-icon { animation: spin 0.6s linear infinite; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* ---------------- 매수 적합도 별점/배지 ---------------- */
+
+.col-rating { width: 140px; }
+
+.rating-badge {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.stars { letter-spacing: 1px; }
+.star { color: #2a3654; font-size: 13px; }
+.star.filled { color: var(--accent); }
+
+.rating-text {
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+  width: fit-content;
+}
+.rating-buy .rating-text { color: #3ddc97; background: #3ddc9718; }
+.rating-watch .rating-text { color: var(--accent); background: #f0b64d18; }
+.rating-hold .rating-text { color: var(--text-dim); background: #4c567018; }
+
+.chip-rating.active { border-color: #3ddc97; color: #3ddc97; background: #3ddc9718; }
+
+/* 상세페이지 상단 별점 배지 */
+.detail-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 10px;
+}
+
+/* ---------------- 종목 직접 검색 위젯 ---------------- */
+
+.lookup-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 22px;
+}
+.lookup-card h3 {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0 0 4px;
+  font-weight: 600;
+}
+.lookup-card .lookup-desc {
+  font-size: 11.5px;
+  color: var(--text-dim);
+  margin: 0 0 12px;
+  line-height: 1.5;
+}
+.lookup-row { display: flex; gap: 8px; }
+.lookup-input {
+  flex: 1;
+  background: #0d1424;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: var(--text);
+  font-family: var(--font-kr);
+  font-size: 13px;
+  outline: none;
+}
+.lookup-input:focus { border-color: var(--accent); }
+.lookup-go {
+  background: var(--accent-dim);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 13px;
+  padding: 0 20px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.lookup-go:hover { background: #f0b64d33; }
+.lookup-hint { font-size: 11px; color: var(--text-dim); margin-top: 8px; }
+
+.lookup-list { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+.lookup-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #0d1424;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.lookup-item:hover { border-color: var(--accent); }
+
+/* ---------------- 공시 목록 ---------------- */
+
+.disclosure-list { display: flex; flex-direction: column; gap: 8px; }
+.disclosure-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: #0d1424;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  text-decoration: none;
+}
+.disclosure-item:hover { border-color: var(--text-dim); }
+.disclosure-title { font-size: 12.5px; color: var(--text); }
+.disclosure-date { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); white-space: nowrap; }
 
 /* ---------------- Responsive ---------------- */
 

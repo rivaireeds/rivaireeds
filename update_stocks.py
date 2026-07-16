@@ -28,6 +28,8 @@ import io
 import json
 import os
 import sys
+import zipfile
+import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 
 import numpy as np
@@ -43,9 +45,20 @@ LOOKBACK_DAYS = 130          # 과거 몇 "달력일"치를 가져올지 (캐시
 VOLUME_SURGE_RATIO = 2.0     # 거래량 급증 판단 배수
 ZIGZAG_THRESHOLD = 0.08      # ZigZag 스윙 판정 임계값
 FIB_TOLERANCE = 0.02         # 피보나치 레벨 근접 판단 비율
-MIN_SCORE_TO_INCLUDE = 2     # 이 점수 이상인 종목만 결과에 포함 (1이면 너무 많아서 노이즈가 큼)
+MIN_SCORE_TO_INCLUDE = 2     # 이 점수 이상인 종목만 "신호 발견 목록"에 포함 (1이면 너무 많아서 노이즈가 큼)
+WATCHLIST_TOP_N = 150        # 시장별(KOSPI/KOSDAQ) 시가총액 상위 몇 개까지 "신호 없어도 항상 조회 가능"하게 할지
 HISTORY_DAYS_TO_SAVE = 90    # 상세 차트용으로 저장할 최근 거래일 수
 REQUEST_TIMEOUT = 15
+
+# ----------------------------------------------------------------------------
+# DART(전자공시시스템) 연동 - 선택 사항
+# ----------------------------------------------------------------------------
+# opendart.fss.or.kr 에서 무료로 발급받은 API 키를 GitHub 저장소의
+# Settings > Secrets and variables > Actions 에 "DART_API_KEY"라는 이름으로 등록하면
+# 자동으로 최근 공시 목록을 함께 가져온다. 키가 없으면 이 기능은 조용히 건너뛴다.
+DART_API_KEY = os.environ.get("DART_API_KEY", "").strip()
+DART_DISCLOSURE_LOOKBACK_DAYS = 90
+DART_MAX_ITEMS = 5
 
 
 def fetch_daily_snapshot(date_obj):
@@ -61,7 +74,7 @@ def fetch_daily_snapshot(date_obj):
             return None
         df = pd.read_csv(io.StringIO(resp.text), index_col=0, dtype={"Code": str})
         df["Date"] = date_str
-        return df[["Date", "Code", "Name", "Market", "Open", "High", "Low", "Close", "Volume"]]
+        return df[["Date", "Code", "Name", "Market", "Open", "High", "Low", "Close", "Volume", "Marcap"]]
     except Exception as e:
         print(f"  [경고] {date_str} 스냅샷 로드 실패: {e}", file=sys.stderr)
         return None
@@ -100,6 +113,30 @@ def build_panel():
     print(f"[{datetime.now()}] 패널 데이터 구성 완료: 종목 {panel['Code'].nunique()}개, "
           f"총 {len(panel)}행 (중복 이월 제거 후)")
     return panel
+
+
+def get_watchlist_codes(panel: pd.DataFrame, top_n=WATCHLIST_TOP_N):
+    """
+    시장(KOSPI/KOSDAQ)별로 '가장 최근 날짜' 기준 시가총액 상위 top_n 종목 코드를 뽑는다.
+    이 종목들은 매수신호가 하나도 없어도(score=0) 상세페이지에서 항상 조회 가능하게 만든다
+    (배찌님이 보유/관심 있는 대형주는 신호가 없을 때도 확인하고 싶을 수 있으니까).
+    """
+    latest_date = panel["Date"].max()
+    latest = panel[panel["Date"] == latest_date]
+
+    watchlist = set()
+    for market in ["KOSPI", "KOSDAQ"]:
+        top = (
+            latest[latest["Market"] == market]
+            .sort_values("Marcap", ascending=False)
+            .head(top_n)["Code"]
+            .tolist()
+        )
+        watchlist.update(top)
+
+    print(f"[{datetime.now()}] 워치리스트(시가총액 상위) 구성: {len(watchlist)}개 종목 "
+          f"(KOSPI/KOSDAQ 각 상위 {top_n})")
+    return watchlist
 
 
 def calc_rsi(close: pd.Series, period: int = 14) -> pd.Series:
@@ -265,6 +302,37 @@ def analyze_wave_and_levels(close: pd.Series):
     return result
 
 
+def compute_rating(score: int, wave_direction, rsi):
+    """
+    감지된 신호 개수·파동 방향·RSI를 조합한 참고용 '매수 적합도' 별점(1~5)과 라벨을 계산한다.
+    ※ 별도의 추가 정보가 아니라, 이미 계산된 신호들을 보기 쉽게 종합한 것일 뿐입니다.
+
+    - 신호 1개당 +1점 (최대 3점)
+    - 상승 파동 진행 중이면 +1점 / 하락 파동 진행 중이면 -1점
+    - RSI 70 이상(과매수 구간)이면 이미 많이 올라서 신규 진입 매력이 낮다고 보고 -1점
+    """
+    stars = min(score, 3)
+
+    if wave_direction == "상승":
+        stars += 1
+    elif wave_direction == "하락":
+        stars -= 1
+
+    if rsi is not None and rsi >= 70:
+        stars -= 1
+
+    stars = max(1, min(5, stars))
+
+    if stars >= 4:
+        label = "매수 적합"
+    elif stars == 3:
+        label = "관심 필요"
+    else:
+        label = "관망"
+
+    return stars, label
+
+
 def analyze_stock(group: pd.DataFrame):
     """
     종목 하나의 시계열(Date순 정렬된 DataFrame)을 받아서 신호 리스트와 부가정보를 계산한다.
@@ -303,13 +371,12 @@ def analyze_stock(group: pd.DataFrame):
     if fib_hit:
         signals.append(f"피보나치{fib_hit}지지")
 
-    if not signals:
-        return {"signals": [], "score": 0}
-
     prev_close = close.iloc[-2]
     change_rate = ((close.iloc[-1] - prev_close) / prev_close * 100) if prev_close else None
 
     wave_info = analyze_wave_and_levels(close) or {}
+    rsi_now = round(float(rsi.iloc[-1]), 1) if pd.notna(rsi.iloc[-1]) else None
+    rating_stars, rating_label = compute_rating(len(signals), wave_info.get("wave_direction"), rsi_now)
 
     return {
         "signals": signals,
@@ -318,25 +385,100 @@ def analyze_stock(group: pd.DataFrame):
         "change_rate": round(float(change_rate), 2) if change_rate is not None else None,
         "volume": int(volume.iloc[-1]),
         "volume_ratio": round(float(volume.iloc[-1] / avg_volume_20), 2) if avg_volume_20 > 0 else None,
-        "rsi": round(float(rsi.iloc[-1]), 1) if pd.notna(rsi.iloc[-1]) else None,
+        "rsi": rsi_now,
         "wave_direction": wave_info.get("wave_direction"),
         "wave_number": wave_info.get("wave_number"),
         "wave_progress_pct": wave_info.get("wave_progress_pct"),
         "buy_point": wave_info.get("buy_point"),
         "target_price": wave_info.get("target_price"),
         "stop_loss": wave_info.get("stop_loss"),
+        "rating_stars": rating_stars,
+        "rating_label": rating_label,
         "ma5": ma5, "ma20": ma20, "ma60": ma60,  # 상세페이지 차트용 (JSON 저장 전에 제거됨)
     }
 
 
-def save_history_json(ticker: str, name: str, group: pd.DataFrame, ma5, ma20, ma60):
-    """상세 차트 페이지용 최근 시세 이력을 data/history/{ticker}.json 으로 저장한다."""
+def build_corp_code_map():
+    """
+    DART가 제공하는 전체 회사 목록(zip 안의 CORPCODE.xml)을 받아서
+    {종목코드: corp_code} 매핑을 만든다. DART_API_KEY가 없으면 빈 딕셔너리를 반환한다
+    (즉, 공시 기능은 키가 없어도 에러 없이 그냥 비활성화된다).
+    """
+    if not DART_API_KEY:
+        print(f"[{datetime.now()}] DART_API_KEY가 설정되지 않아 공시 조회는 건너뜁니다.")
+        return {}
+
+    try:
+        url = f"https://opendart.fss.or.kr/api/corpCode.xml?crtfc_key={DART_API_KEY}"
+        resp = requests.get(url, timeout=30)
+        resp.raise_for_status()
+        with zipfile.ZipFile(io.BytesIO(resp.content)) as zf:
+            xml_bytes = zf.read(zf.namelist()[0])
+        root = ET.fromstring(xml_bytes)
+
+        mapping = {}
+        for node in root.findall("list"):
+            stock_code = (node.findtext("stock_code") or "").strip()
+            corp_code = (node.findtext("corp_code") or "").strip()
+            if stock_code:
+                mapping[stock_code] = corp_code
+
+        print(f"[{datetime.now()}] DART corp_code 매핑 {len(mapping)}건 로드 완료")
+        return mapping
+    except Exception as e:
+        print(f"  [경고] DART corp_code 매핑 실패: {e} (공시 기능 없이 계속 진행)", file=sys.stderr)
+        return {}
+
+
+def fetch_recent_disclosures(corp_code):
+    """DART 공시검색 API로 최근 공시 목록(최대 DART_MAX_ITEMS건)을 가져온다."""
+    if not DART_API_KEY or not corp_code:
+        return []
+
+    try:
+        end_de = datetime.today().strftime("%Y%m%d")
+        start_de = (datetime.today() - timedelta(days=DART_DISCLOSURE_LOOKBACK_DAYS)).strftime("%Y%m%d")
+        url = (
+            "https://opendart.fss.or.kr/api/list.json"
+            f"?crtfc_key={DART_API_KEY}&corp_code={corp_code}"
+            f"&bgn_de={start_de}&end_de={end_de}&page_count=100"
+        )
+        resp = requests.get(url, timeout=REQUEST_TIMEOUT)
+        data = resp.json()
+        if data.get("status") != "000":
+            return []  # "013" 등은 "해당 기간 공시 없음" — 정상적인 빈 결과
+
+        items = data.get("list", [])[:DART_MAX_ITEMS]
+        return [
+            {
+                "title": it.get("report_nm"),
+                "date": it.get("rcept_dt"),
+                "url": f"https://dart.fss.or.kr/dsaf001/main.do?rcpNo={it.get('rcept_no')}",
+            }
+            for it in items
+        ]
+    except Exception:
+        return []
+
+
+def save_history_json(ticker: str, name: str, market: str, group: pd.DataFrame, analysis: dict, disclosures=None):
+    """
+    상세 차트 페이지용 데이터를 data/history/{ticker}.json 으로 저장한다.
+    OHLCV 이력 + 분석 결과(analysis)를 함께 담아서, 신호 목록(data/signals.json)에
+    없는 종목(워치리스트 300종목 등)도 상세페이지에서 바로 조회할 수 있게 한다.
+    """
+    ma5, ma20, ma60 = analysis["ma5"], analysis["ma20"], analysis["ma60"]
     tail = group.tail(HISTORY_DAYS_TO_SAVE).reset_index(drop=True)
     n = len(tail)
+
+    analysis_out = {k: v for k, v in analysis.items() if k not in ("ma5", "ma20", "ma60")}
 
     history = {
         "ticker": ticker,
         "name": name,
+        "market": market,
+        "analysis": analysis_out,
+        "disclosures": disclosures or [],
         "dates": tail["Date"].tolist(),
         "open": tail["Open"].astype(int).tolist(),
         "high": tail["High"].astype(int).tolist(),
@@ -369,7 +511,11 @@ def main():
     panel = build_panel()
     clean_history_dir()
 
-    results = []
+    watchlist_codes = get_watchlist_codes(panel)
+    corp_code_map = build_corp_code_map()
+
+    signal_stocks = []   # 대시보드 메인 목록 (score >= MIN_SCORE_TO_INCLUDE)
+    universe_stocks = []  # 검색용 전체 목록 (신호 종목 + 워치리스트 300종목)
 
     for code, group in panel.groupby("Code"):
         group = group.sort_values("Date").reset_index(drop=True)
@@ -377,36 +523,50 @@ def main():
         market = group["Market"].iloc[-1]
 
         analysis = analyze_stock(group)
-        if not analysis or analysis["score"] < MIN_SCORE_TO_INCLUDE:
+        if not analysis:
             continue
 
-        ma5, ma20, ma60 = analysis.pop("ma5"), analysis.pop("ma20"), analysis.pop("ma60")
+        has_signal = analysis["score"] >= MIN_SCORE_TO_INCLUDE
+        in_watchlist = code in watchlist_codes
 
-        results.append({
-            "ticker": code,
-            "name": name,
-            "market": market,
-            **analysis,
-        })
+        if not (has_signal or in_watchlist):
+            continue  # 신호도 없고 워치리스트에도 없으면 저장하지 않음 (저장소 용량 절약)
 
-        save_history_json(code, name, group, ma5, ma20, ma60)
+        disclosures = []
+        if corp_code_map.get(code):
+            disclosures = fetch_recent_disclosures(corp_code_map[code])
 
-    results.sort(key=lambda x: x["score"], reverse=True)
+        entry = {"ticker": code, "name": name, "market": market, **{
+            k: v for k, v in analysis.items() if k not in ("ma5", "ma20", "ma60")
+        }}
+
+        universe_stocks.append(entry)
+        if has_signal:
+            signal_stocks.append(entry)
+
+        save_history_json(code, name, market, group, analysis, disclosures)
+
+    signal_stocks.sort(key=lambda x: x["score"], reverse=True)
+    universe_stocks.sort(key=lambda x: (x["score"], x["rating_stars"]), reverse=True)
 
     output = {
         "update_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "market": "KOSPI+KOSDAQ",
         "total_scanned": int(panel["Code"].nunique()),
-        "total_signals": len(results),
+        "total_signals": len(signal_stocks),
+        "total_universe": len(universe_stocks),
+        "dart_enabled": bool(DART_API_KEY),
         "wave_basis_note": WAVE_BASIS_NOTE,
-        "stocks": results,
+        "stocks": signal_stocks,
+        "universe": universe_stocks,
     }
 
     os.makedirs("data", exist_ok=True)
     with open("data/signals.json", "w", encoding="utf-8") as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
 
-    print(f"[{datetime.now()}] 완료: 전체 {panel['Code'].nunique()}종목 중 {len(results)}종목에서 신호 발견")
+    print(f"[{datetime.now()}] 완료: 전체 {panel['Code'].nunique()}종목 중 "
+          f"신호 {len(signal_stocks)}개 / 조회 가능 전체(워치리스트 포함) {len(universe_stocks)}개")
 
 
 if __name__ == "__main__":

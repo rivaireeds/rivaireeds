@@ -1,8 +1,10 @@
 /**
  * detail.js
  * URL의 ?ticker=005930 파라미터를 읽어서
- * data/history/{ticker}.json (시세 이력) + data/signals.json (신호 정보)을
- * 불러와 상세 페이지를 렌더링한다.
+ * data/history/{ticker}.json (시세 이력 + 분석 + 공시)을 불러와 상세 페이지를 렌더링한다.
+ *
+ * data/history/{ticker}.json 에는 이미 analysis(신호/파동/타점/별점)가 통째로 들어있어서
+ * "신호가 없어도 워치리스트(코스피/코스닥 시총 상위 300)에 속한 종목"도 이 페이지 하나로 완결된다.
  */
 
 (function () {
@@ -31,8 +33,28 @@
     return `<div class="score-meter">${segs}</div>`;
   }
 
+  function starHtml(stars) {
+    const max = 5;
+    let out = "";
+    for (let i = 0; i < max; i++) {
+      out += `<span class="star ${i < stars ? "filled" : ""}">★</span>`;
+    }
+    return out;
+  }
+
+  function ratingClass(label) {
+    if (label === "매수 적합") return "rating-buy";
+    if (label === "관심 필요") return "rating-watch";
+    return "rating-hold";
+  }
+
+  // TradingView는 한국거래소(코스피/코스닥)를 통합해서 "KRX:" 접두사 하나로 심볼을 제공한다
+  function tradingViewSymbol(ticker) {
+    return `KRX:${ticker}`;
+  }
+
   async function load() {
-    let history, signalInfo = null, waveBasisNote = "";
+    let history, waveBasisNote = "";
 
     try {
       const res = await fetch(`data/history/${ticker}.json?t=${Date.now()}`);
@@ -40,7 +62,8 @@
       history = await res.json();
     } catch (err) {
       content.innerHTML = `<p class="empty-state">
-        이 종목의 상세 데이터를 찾을 수 없습니다. (신호 목록에 없는 종목이거나 데이터가 아직 갱신되지 않았을 수 있어요)
+        이 종목의 상세 데이터를 찾을 수 없습니다. (신호 목록·워치리스트 300종목에 없는 종목이거나,
+        데이터가 아직 갱신되지 않았을 수 있어요)
       </p>`;
       return;
     }
@@ -48,30 +71,50 @@
     try {
       const res = await fetch(`data/signals.json?t=${Date.now()}`);
       const data = await res.json();
-      signalInfo = (data.stocks || []).find((s) => s.ticker === ticker) || null;
       waveBasisNote = data.wave_basis_note || "";
     } catch (err) {
-      // signals.json을 못 불러와도 차트는 그릴 수 있으니 무시
+      // 기준 설명 문구를 못 가져와도 나머지 렌더링에는 지장 없음
     }
 
-    render(history, signalInfo, waveBasisNote);
+    render(history, waveBasisNote);
   }
 
-  function render(history, signalInfo, waveBasisNote) {
-    const rate = signalInfo?.change_rate;
+  function render(history, waveBasisNote) {
+    const info = history.analysis || {};
+    const rate = info.change_rate;
     const rateText =
       rate === null || rate === undefined ? "-" : `${rate > 0 ? "+" : ""}${rate.toFixed(2)}%`;
 
-    const tags = (signalInfo?.signals || [])
-      .map((s) => `<span class="tag">${s}</span>`)
-      .join("");
+    const tags = (info.signals || []).map((s) => `<span class="tag">${s}</span>`).join("");
+    const hasSignals = (info.signals || []).length > 0;
+
+    const disclosures = history.disclosures || [];
+    const disclosuresHtml =
+      disclosures.length > 0
+        ? disclosures
+            .map(
+              (d) => `
+        <a class="disclosure-item" href="${d.url}" target="_blank" rel="noopener">
+          <span class="disclosure-title">${d.title}</span>
+          <span class="disclosure-date">${d.date}</span>
+        </a>
+      `
+            )
+            .join("")
+        : `<p class="empty-state" style="padding:20px;">최근 90일 내 공시가 없거나, 공시 조회 기능이 아직 설정되지 않았어요.</p>`;
 
     content.innerHTML = `
       <div class="detail-header">
         <div class="detail-title">
           <h1>${history.name}</h1>
           <span class="stock-ticker">${history.ticker}</span>
-          ${signalInfo ? `<span class="stock-market">${signalInfo.market}</span>` : ""}
+          <span class="stock-market">${history.market}</span>
+          <div class="detail-rating">
+            <div class="rating-badge ${ratingClass(info.rating_label)}">
+              <div class="stars">${starHtml(info.rating_stars ?? 0)}</div>
+              <span class="rating-text">${info.rating_label ?? "-"}</span>
+            </div>
+          </div>
         </div>
         <div class="detail-price">
           ${history.close.at(-1).toLocaleString()}<span class="unit">원</span>
@@ -79,55 +122,54 @@
         </div>
       </div>
 
-      ${
-        signalInfo
-          ? `
       <section class="detail-stats">
         <div class="stat-card">
-          <div class="stat-num">${scoreMeterHtml(signalInfo.score)}</div>
+          <div class="stat-num">${scoreMeterHtml(info.score ?? 0)}</div>
           <div class="stat-label">신호 점수</div>
         </div>
         <div class="stat-card">
-          <div class="stat-num">${signalInfo.rsi ?? "-"}</div>
+          <div class="stat-num">${info.rsi ?? "-"}</div>
           <div class="stat-label">RSI(14)</div>
         </div>
         <div class="stat-card">
-          <div class="stat-num">${signalInfo.volume_ratio ? signalInfo.volume_ratio + "x" : "-"}</div>
+          <div class="stat-num">${info.volume_ratio ? info.volume_ratio + "x" : "-"}</div>
           <div class="stat-label">거래량 / 20일평균</div>
         </div>
         <div class="stat-card">
-          <div class="stat-num">${signalInfo.volume?.toLocaleString() ?? "-"}</div>
+          <div class="stat-num">${info.volume?.toLocaleString() ?? "-"}</div>
           <div class="stat-label">당일 거래량</div>
         </div>
       </section>
-      <div class="tag-list" style="margin-bottom:20px;">${tags}</div>
-      `
-          : ""
+
+      ${
+        hasSignals
+          ? `<div class="tag-list" style="margin-bottom:20px;">${tags}</div>`
+          : `<p class="lookup-hint" style="margin-bottom:20px;">현재 감지된 기술적 신호가 없어요 (워치리스트 종목이라 항상 조회는 가능해요).</p>`
       }
 
       ${
-        signalInfo && signalInfo.wave_direction
+        info.wave_direction
           ? `
       <div class="chart-card">
         <h3>파동 위치 &amp; 매매 타점</h3>
         <div class="wave-row">
-          <span class="wave-badge ${signalInfo.wave_direction === "상승" ? "wave-up" : "wave-down"}">
-            ${signalInfo.wave_direction} ${signalInfo.wave_number}파 진행 중
+          <span class="wave-badge ${info.wave_direction === "상승" ? "wave-up" : "wave-down"}">
+            ${info.wave_direction} ${info.wave_number}파 진행 중
           </span>
-          <span class="wave-progress">전 스윙 대비 진행률 ${signalInfo.wave_progress_pct ?? "-"}%</span>
+          <span class="wave-progress">전 스윙 대비 진행률 ${info.wave_progress_pct ?? "-"}%</span>
         </div>
         <div class="level-grid">
           <div class="level-box">
             <div class="level-label">매수타점 (조정시 38.2%)</div>
-            <div class="level-value">${signalInfo.buy_point ? signalInfo.buy_point.toLocaleString() + "원" : "해당없음"}</div>
+            <div class="level-value">${info.buy_point ? info.buy_point.toLocaleString() + "원" : "해당없음"}</div>
           </div>
           <div class="level-box target">
             <div class="level-label">목표가 (확장 1.272배)</div>
-            <div class="level-value">${signalInfo.target_price ? signalInfo.target_price.toLocaleString() + "원" : "해당없음"}</div>
+            <div class="level-value">${info.target_price ? info.target_price.toLocaleString() + "원" : "해당없음"}</div>
           </div>
           <div class="level-box stop">
             <div class="level-label">손절가</div>
-            <div class="level-value">${signalInfo.stop_loss ? signalInfo.stop_loss.toLocaleString() + "원" : "-"}</div>
+            <div class="level-value">${info.stop_loss ? info.stop_loss.toLocaleString() + "원" : "-"}</div>
           </div>
         </div>
         <p class="wave-basis">${waveBasisNote || ""}</p>
@@ -137,16 +179,22 @@
       }
 
       <div class="chart-card">
-        <h3>종가 &amp; 이동평균 (5 / 20 / 60일)</h3>
+        <h3>일봉 차트 (TradingView)</h3>
+        <div id="tvChartContainer" style="height:460px;"></div>
+        <p class="wave-basis">TradingView 위젯이며, 무료 버전 기준 최대 15분 지연 시세일 수 있어요. 캔들/보조지표/타임프레임을 직접 조절할 수 있어요.</p>
+      </div>
+
+      <div class="chart-card">
+        <h3>매매 타점 오버레이 (종가 &amp; 이동평균 5/20/60일)</h3>
         <div class="chart-wrap"><canvas id="priceChart"></canvas></div>
         <div class="legend-row">
           <span class="legend-item"><span class="legend-dot" style="background:#f0b64d"></span>종가</span>
           <span class="legend-item"><span class="legend-dot" style="background:#e5484d"></span>MA5</span>
           <span class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span>MA20</span>
           <span class="legend-item"><span class="legend-dot" style="background:#8b93a7"></span>MA60</span>
-          ${signalInfo?.buy_point ? `<span class="legend-item"><span class="legend-dot" style="background:#f0b64d;opacity:.6"></span>매수타점(점선)</span>` : ""}
-          ${signalInfo?.target_price ? `<span class="legend-item"><span class="legend-dot" style="background:#3ddc97"></span>목표가(점선)</span>` : ""}
-          ${signalInfo?.stop_loss ? `<span class="legend-item"><span class="legend-dot" style="background:#e5484d"></span>손절가(점선)</span>` : ""}
+          ${info.buy_point ? `<span class="legend-item"><span class="legend-dot" style="background:#f0b64d;opacity:.6"></span>매수타점(점선)</span>` : ""}
+          ${info.target_price ? `<span class="legend-item"><span class="legend-dot" style="background:#3ddc97"></span>목표가(점선)</span>` : ""}
+          ${info.stop_loss ? `<span class="legend-item"><span class="legend-dot" style="background:#e5484d"></span>손절가(점선)</span>` : ""}
         </div>
       </div>
 
@@ -155,19 +203,48 @@
         <div class="chart-wrap volume"><canvas id="volumeChart"></canvas></div>
       </div>
 
+      <div class="chart-card">
+        <h3>최근 공시 (DART, 최근 90일)</h3>
+        <div class="disclosure-list">${disclosuresHtml}</div>
+      </div>
+
       <p class="footnote">
         본 페이지는 기술적 지표 기반 자동 스캔 결과이며, 투자 조언이나 매수·매도 추천이 아닙니다.
       </p>
     `;
 
-    drawCharts(history, signalInfo);
+    drawCharts(history, info);
+    drawTradingView(history.ticker);
+  }
+
+  function drawTradingView(ticker) {
+    if (typeof TradingView === "undefined") {
+      document.getElementById("tvChartContainer").innerHTML =
+        `<p class="empty-state">TradingView 위젯을 불러오지 못했어요. 잠시 후 새로고침 해주세요.</p>`;
+      return;
+    }
+    new TradingView.widget({
+      autosize: true,
+      symbol: tradingViewSymbol(ticker),
+      interval: "D",
+      timezone: "Asia/Seoul",
+      theme: "dark",
+      style: "1", // 캔들스틱
+      locale: "kr",
+      toolbar_bg: "#0a0f1a",
+      enable_publishing: false,
+      hide_top_toolbar: false,
+      hide_legend: false,
+      save_image: false,
+      container_id: "tvChartContainer",
+    });
   }
 
   function flatLine(labels, value) {
     return labels.map(() => value);
   }
 
-  function drawCharts(history, signalInfo) {
+  function drawCharts(history, info) {
     const labels = history.dates.map((d) => d.slice(5)); // MM-DD만 표시
 
     const priceDatasets = [
@@ -207,31 +284,30 @@
       },
     ];
 
-    // 매수타점 / 목표가 / 손절가를 차트 위 수평 기준선으로 겹쳐 그림
-    if (signalInfo?.buy_point) {
+    if (info?.buy_point) {
       priceDatasets.push({
         label: "매수타점",
-        data: flatLine(labels, signalInfo.buy_point),
+        data: flatLine(labels, info.buy_point),
         borderColor: "#f0b64d",
         borderWidth: 1,
         borderDash: [5, 4],
         pointRadius: 0,
       });
     }
-    if (signalInfo?.target_price) {
+    if (info?.target_price) {
       priceDatasets.push({
         label: "목표가",
-        data: flatLine(labels, signalInfo.target_price),
+        data: flatLine(labels, info.target_price),
         borderColor: "#3ddc97",
         borderWidth: 1,
         borderDash: [5, 4],
         pointRadius: 0,
       });
     }
-    if (signalInfo?.stop_loss) {
+    if (info?.stop_loss) {
       priceDatasets.push({
         label: "손절가",
-        data: flatLine(labels, signalInfo.stop_loss),
+        data: flatLine(labels, info.stop_loss),
         borderColor: "#e5484d",
         borderWidth: 1,
         borderDash: [2, 3],
