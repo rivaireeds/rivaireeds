@@ -406,6 +406,63 @@ body {
 }
 .legend-dot { width: 10px; height: 3px; border-radius: 2px; display: inline-block; }
 
+/* 파동 위치 / 매매 타점 */
+
+.wave-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.wave-badge {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 7px;
+  border: 1px solid;
+}
+.wave-badge.wave-up { color: var(--up); border-color: #e5484d55; background: #e5484d14; }
+.wave-badge.wave-down { color: var(--down); border-color: #3b82f655; background: #3b82f614; }
+
+.wave-progress {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.level-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.level-box {
+  background: #0d1424;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+.level-box.target { border-color: var(--accent-dim); }
+.level-box.stop { border-color: #e5484d33; }
+
+.level-label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+.level-value { font-family: var(--font-mono); font-size: 17px; font-weight: 700; color: var(--text); }
+.level-box.target .level-value { color: var(--accent); }
+.level-box.stop .level-value { color: var(--up); }
+
+.wave-basis {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin: 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
 /* ---------------- Responsive ---------------- */
 
 @media (max-width: 720px) {

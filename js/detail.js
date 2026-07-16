@@ -32,7 +32,7 @@
   }
 
   async function load() {
-    let history, signalInfo = null;
+    let history, signalInfo = null, waveBasisNote = "";
 
     try {
       const res = await fetch(`data/history/${ticker}.json?t=${Date.now()}`);
@@ -49,14 +49,15 @@
       const res = await fetch(`data/signals.json?t=${Date.now()}`);
       const data = await res.json();
       signalInfo = (data.stocks || []).find((s) => s.ticker === ticker) || null;
+      waveBasisNote = data.wave_basis_note || "";
     } catch (err) {
       // signals.json을 못 불러와도 차트는 그릴 수 있으니 무시
     }
 
-    render(history, signalInfo);
+    render(history, signalInfo, waveBasisNote);
   }
 
-  function render(history, signalInfo) {
+  function render(history, signalInfo, waveBasisNote) {
     const rate = signalInfo?.change_rate;
     const rateText =
       rate === null || rate === undefined ? "-" : `${rate > 0 ? "+" : ""}${rate.toFixed(2)}%`;
@@ -104,6 +105,37 @@
           : ""
       }
 
+      ${
+        signalInfo && signalInfo.wave_direction
+          ? `
+      <div class="chart-card">
+        <h3>파동 위치 &amp; 매매 타점</h3>
+        <div class="wave-row">
+          <span class="wave-badge ${signalInfo.wave_direction === "상승" ? "wave-up" : "wave-down"}">
+            ${signalInfo.wave_direction} ${signalInfo.wave_number}파 진행 중
+          </span>
+          <span class="wave-progress">전 스윙 대비 진행률 ${signalInfo.wave_progress_pct ?? "-"}%</span>
+        </div>
+        <div class="level-grid">
+          <div class="level-box">
+            <div class="level-label">매수타점 (조정시 38.2%)</div>
+            <div class="level-value">${signalInfo.buy_point ? signalInfo.buy_point.toLocaleString() + "원" : "해당없음"}</div>
+          </div>
+          <div class="level-box target">
+            <div class="level-label">목표가 (확장 1.272배)</div>
+            <div class="level-value">${signalInfo.target_price ? signalInfo.target_price.toLocaleString() + "원" : "해당없음"}</div>
+          </div>
+          <div class="level-box stop">
+            <div class="level-label">손절가</div>
+            <div class="level-value">${signalInfo.stop_loss ? signalInfo.stop_loss.toLocaleString() + "원" : "-"}</div>
+          </div>
+        </div>
+        <p class="wave-basis">${waveBasisNote || ""}</p>
+      </div>
+      `
+          : ""
+      }
+
       <div class="chart-card">
         <h3>종가 &amp; 이동평균 (5 / 20 / 60일)</h3>
         <div class="chart-wrap"><canvas id="priceChart"></canvas></div>
@@ -112,6 +144,9 @@
           <span class="legend-item"><span class="legend-dot" style="background:#e5484d"></span>MA5</span>
           <span class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span>MA20</span>
           <span class="legend-item"><span class="legend-dot" style="background:#8b93a7"></span>MA60</span>
+          ${signalInfo?.buy_point ? `<span class="legend-item"><span class="legend-dot" style="background:#f0b64d;opacity:.6"></span>매수타점(점선)</span>` : ""}
+          ${signalInfo?.target_price ? `<span class="legend-item"><span class="legend-dot" style="background:#3ddc97"></span>목표가(점선)</span>` : ""}
+          ${signalInfo?.stop_loss ? `<span class="legend-item"><span class="legend-dot" style="background:#e5484d"></span>손절가(점선)</span>` : ""}
         </div>
       </div>
 
@@ -125,53 +160,88 @@
       </p>
     `;
 
-    drawCharts(history);
+    drawCharts(history, signalInfo);
   }
 
-  function drawCharts(history) {
+  function flatLine(labels, value) {
+    return labels.map(() => value);
+  }
+
+  function drawCharts(history, signalInfo) {
     const labels = history.dates.map((d) => d.slice(5)); // MM-DD만 표시
+
+    const priceDatasets = [
+      {
+        label: "종가",
+        data: history.close,
+        borderColor: "#f0b64d",
+        backgroundColor: "#f0b64d22",
+        borderWidth: 2,
+        pointRadius: 0,
+        tension: 0.15,
+        fill: true,
+      },
+      {
+        label: "MA5",
+        data: history.ma5,
+        borderColor: "#e5484d",
+        borderWidth: 1,
+        pointRadius: 0,
+        tension: 0.15,
+      },
+      {
+        label: "MA20",
+        data: history.ma20,
+        borderColor: "#3b82f6",
+        borderWidth: 1,
+        pointRadius: 0,
+        tension: 0.15,
+      },
+      {
+        label: "MA60",
+        data: history.ma60,
+        borderColor: "#8b93a7",
+        borderWidth: 1,
+        pointRadius: 0,
+        tension: 0.15,
+      },
+    ];
+
+    // 매수타점 / 목표가 / 손절가를 차트 위 수평 기준선으로 겹쳐 그림
+    if (signalInfo?.buy_point) {
+      priceDatasets.push({
+        label: "매수타점",
+        data: flatLine(labels, signalInfo.buy_point),
+        borderColor: "#f0b64d",
+        borderWidth: 1,
+        borderDash: [5, 4],
+        pointRadius: 0,
+      });
+    }
+    if (signalInfo?.target_price) {
+      priceDatasets.push({
+        label: "목표가",
+        data: flatLine(labels, signalInfo.target_price),
+        borderColor: "#3ddc97",
+        borderWidth: 1,
+        borderDash: [5, 4],
+        pointRadius: 0,
+      });
+    }
+    if (signalInfo?.stop_loss) {
+      priceDatasets.push({
+        label: "손절가",
+        data: flatLine(labels, signalInfo.stop_loss),
+        borderColor: "#e5484d",
+        borderWidth: 1,
+        borderDash: [2, 3],
+        pointRadius: 0,
+      });
+    }
 
     new Chart(document.getElementById("priceChart"), {
       type: "line",
-      data: {
-        labels,
-        datasets: [
-          {
-            label: "종가",
-            data: history.close,
-            borderColor: "#f0b64d",
-            backgroundColor: "#f0b64d22",
-            borderWidth: 2,
-            pointRadius: 0,
-            tension: 0.15,
-            fill: true,
-          },
-          {
-            label: "MA5",
-            data: history.ma5,
-            borderColor: "#e5484d",
-            borderWidth: 1,
-            pointRadius: 0,
-            tension: 0.15,
-          },
-          {
-            label: "MA20",
-            data: history.ma20,
-            borderColor: "#3b82f6",
-            borderWidth: 1,
-            pointRadius: 0,
-            tension: 0.15,
-          },
-          {
-            label: "MA60",
-            data: history.ma60,
-            borderColor: "#8b93a7",
-            borderWidth: 1,
-            pointRadius: 0,
-            tension: 0.15,
-          },
-        ],
-      },
+      data: { labels, datasets: priceDatasets },
       options: {
         responsive: true,
         maintainAspectRatio: false,

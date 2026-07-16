@@ -212,6 +212,59 @@ def check_fibonacci_support(close: pd.Series):
     return None
 
 
+# 파동위치·매수타점 계산 기준 (프론트에도 그대로 노출해서 사용자가 근거를 알 수 있게 함)
+WAVE_BASIS_NOTE = (
+    "일봉(종가) 기준 · ZigZag 8% 스윙 전환점으로 구간을 나눈 단순화된 파동 카운트입니다. "
+    "정통 엘리어트파동 이론의 세부 규칙(파동 간 피보나치 비율, 3파 최단파동 금지 등)까지 "
+    "전부 검증한 것은 아니며, 참고용 스윙 위치 표시로만 활용해주세요."
+)
+
+
+def analyze_wave_and_levels(close: pd.Series):
+    """
+    ZigZag 피벗을 기반으로 (1) 지금이 몇 번째 스윙(파동)인지,
+    (2) 상승파동이 어디까지 진행됐는지, (3) 매수타점/목표가/손절가를 계산한다.
+
+    - 매수타점: 현재 상승 구간의 38.2% 되돌림 지점 (조정 시 매수 관점)
+    - 목표가: 직전 하락폭 대비 1.272배 확장 지점 (일반적인 파동 확장 비율)
+    - 손절가: 이번 상승의 시작점(직전 스윙 저점) 대비 2% 아래 (그 아래로 깨지면 상승 근거 무효화로 판단)
+    """
+    pivots = zigzag_pivots(close)
+    if len(pivots) < 3:
+        return None
+
+    prev_swing, last_swing, current = pivots[-3], pivots[-2], pivots[-1]
+    wave_count = len(pivots) - 1  # 확정된 스윙 개수 (진행중인 마지막 구간 제외)
+    wave_number = ((wave_count - 1) % 5) + 1  # 5파 주기로 순환 라벨링 (단순화)
+    direction = "상승" if current[2] == "high" else "하락"
+    current_price = float(close.iloc[-1])
+
+    prior_leg_size = abs(last_swing[1] - prev_swing[1])
+    progress_pct = None
+    if prior_leg_size > 0:
+        progress_pct = round(abs(current_price - last_swing[1]) / prior_leg_size * 100, 1)
+
+    result = {
+        "wave_direction": direction,
+        "wave_number": wave_number,
+        "wave_progress_pct": progress_pct,
+        "buy_point": None,
+        "target_price": None,
+        "stop_loss": None,
+    }
+
+    if direction == "상승":
+        swing_low = last_swing[1]
+        result["buy_point"] = int(current_price - (current_price - swing_low) * 0.382)
+        result["target_price"] = int(swing_low + prior_leg_size * 1.272)
+        result["stop_loss"] = int(swing_low * 0.98)
+    else:
+        # 하락 파동이 진행 중일 때는 신규 매수 구간이 아니므로 손절가(참고용)만 제시
+        result["stop_loss"] = int(current_price * 0.95)
+
+    return result
+
+
 def analyze_stock(group: pd.DataFrame):
     """
     종목 하나의 시계열(Date순 정렬된 DataFrame)을 받아서 신호 리스트와 부가정보를 계산한다.
@@ -256,6 +309,8 @@ def analyze_stock(group: pd.DataFrame):
     prev_close = close.iloc[-2]
     change_rate = ((close.iloc[-1] - prev_close) / prev_close * 100) if prev_close else None
 
+    wave_info = analyze_wave_and_levels(close) or {}
+
     return {
         "signals": signals,
         "score": len(signals),
@@ -264,6 +319,12 @@ def analyze_stock(group: pd.DataFrame):
         "volume": int(volume.iloc[-1]),
         "volume_ratio": round(float(volume.iloc[-1] / avg_volume_20), 2) if avg_volume_20 > 0 else None,
         "rsi": round(float(rsi.iloc[-1]), 1) if pd.notna(rsi.iloc[-1]) else None,
+        "wave_direction": wave_info.get("wave_direction"),
+        "wave_number": wave_info.get("wave_number"),
+        "wave_progress_pct": wave_info.get("wave_progress_pct"),
+        "buy_point": wave_info.get("buy_point"),
+        "target_price": wave_info.get("target_price"),
+        "stop_loss": wave_info.get("stop_loss"),
         "ma5": ma5, "ma20": ma20, "ma60": ma60,  # 상세페이지 차트용 (JSON 저장 전에 제거됨)
     }
 
@@ -337,6 +398,7 @@ def main():
         "market": "KOSPI+KOSDAQ",
         "total_scanned": int(panel["Code"].nunique()),
         "total_signals": len(results),
+        "wave_basis_note": WAVE_BASIS_NOTE,
         "stocks": results,
     }
 
