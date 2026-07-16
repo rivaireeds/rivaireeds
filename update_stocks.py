@@ -1,177 +1,351 @@
 # -*- coding: utf-8 -*-
 """
-update_stocks.py
-=================
-한국거래소(KRX) IP 차단 이슈를 원천 해결하기 위해 '네이버 증권 API'로 데이터를 수집합니다.
-깃허브 액션 가상 환경에서도 오류 및 차단 없이 100% 영구적으로 작동합니다.
+update_stocks.py  (v2 — GitHub 캐시 기반, KRX 직접 접속 없음)
+================================================================
+[이전 버전과의 가장 큰 차이점]
+이전 버전은 pykrx로 KRX 서버에 종목당 1번씩(약 2,500번) 직접 접속했다.
+그런데 GitHub Actions 서버(해외 IP)에서 KRX가 요청을 계속 빈 응답으로 막아서 실패했다.
+
+이번 버전은 KRX에 전혀 접속하지 않는다. 대신 FinanceDataReader 프로젝트가
+매일 자동으로 KRX 전종목 시세를 캐싱해서 올려주는 공개 GitHub 저장소
+(FinanceData/fdr_krx_data_cache)에서 날짜별 CSV를 그대로 받아온다.
+GitHub -> GitHub 요청이라 GitHub Actions 환경에서 막힐 걱정이 없고,
+하루치 파일 하나에 전종목이 다 들어있어서 종목별로 개별 요청할 필요도 없다
+(약 2,500번 요청 -> 약 130번 요청으로 감소, 실행 시간도 크게 단축).
+
+전체 흐름
+---------
+1. 최근 LOOKBACK_DAYS 만큼의 날짜별 스냅샷 CSV를 GitHub에서 받아온다.
+2. 주말/공휴일에는 직전 거래일 데이터가 그대로 이월되어 있으므로, 연속된
+   날짜의 종가/거래량이 완전히 동일하면 "새 거래일이 아니다"로 보고 제거한다.
+3. 종목(Code)별로 시계열을 만들어 기술적 신호 5가지를 계산한다.
+4. 신호가 1개 이상 감지된 종목만 data/signals.json에 저장한다.
+5. 그 종목들은 상세 차트 페이지에서 쓸 수 있도록 최근 시세 이력을
+   data/history/{티커}.json 으로 별도 저장한다.
 """
 
+import io
 import json
 import os
 import sys
 from datetime import datetime, timedelta
-import pandas as pd
+
 import numpy as np
+import pandas as pd
 import requests
 
-def get_naver_market_data():
-    """네이버 금융에서 KOSPI와 KOSDAQ의 전 종목 시세를 일괄 수집합니다."""
-    # KOSPI 종목 일괄 수집 API (네이버 검색 내부 API 활용)
-    # 코스피: 0, 코스닥: 1
-    stocks = []
-    
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36'
-    }
+# ----------------------------------------------------------------------------
+# 설정값
+# ----------------------------------------------------------------------------
+CACHE_BASE_URL = "https://raw.githubusercontent.com/FinanceData/fdr_krx_data_cache/refs/heads/master/data/listing/krx"
 
-    for market_code, market_name in [("0", "KOSPI"), ("1", "KOSDAQ")]:
-        page = 1
-        while True:
-            url = f"https://finance.naver.com/sise/sise_market_sum.naver?sosok={market_code}&page={page}"
-            try:
-                res = requests.get(url, headers=headers, timeout=10)
-                if res.status_code != 200:
-                    break
-                
-                # Pandas로 HTML 테이블 긁어오기
-                dfs = pd.read_html(res.text)
-                df = dfs[1] # 보통 2번째 테이블에 주가 리스트 존재
-                
-                # 테이블 클렌징
-                df = df.dropna(subset=['no'])
-                if df.empty:
-                    break
-                
-                # HTML에서 종목코드(6자리) 파싱을 위해 BeautifulSoup 사용
-                from bs4 import BeautifulSoup
-                soup = BeautifulSoup(res.text, 'html.parser')
-                anchors = soup.select("a.tltle")
-                
-                if not anchors:
-                    break
+LOOKBACK_DAYS = 130          # 과거 몇 "달력일"치를 가져올지 (캐시 저장소 시작 시점보다 적게 잡아야 함)
+VOLUME_SURGE_RATIO = 2.0     # 거래량 급증 판단 배수
+ZIGZAG_THRESHOLD = 0.08      # ZigZag 스윙 판정 임계값
+FIB_TOLERANCE = 0.02         # 피보나치 레벨 근접 판단 비율
+MIN_SCORE_TO_INCLUDE = 2     # 이 점수 이상인 종목만 결과에 포함 (1이면 너무 많아서 노이즈가 큼)
+HISTORY_DAYS_TO_SAVE = 90    # 상세 차트용으로 저장할 최근 거래일 수
+REQUEST_TIMEOUT = 15
 
-                for i, anchor in enumerate(anchors):
-                    href = anchor.get('href', '')
-                    ticker = href.split('code=')[-1] if 'code=' in href else None
-                    if not ticker:
-                        continue
-                    
-                    row_idx = df.index[df['종목명'] == anchor.text].tolist()
-                    if not row_idx:
-                        continue
-                    
-                    row = df.loc[row_idx[0]]
-                    
-                    # 수치 데이터 형변환 (쉼표 제거 및 숫자 변환)
-                    try:
-                        price = int(str(row['현재가']).replace(',', '').replace('.0', ''))
-                        volume = int(str(row['거래량']).replace(',', '').replace('.0', ''))
-                        # 등락률 처리
-                        rate_str = str(row['등락률']).replace('%', '').replace('+', '').strip()
-                        rate = float(rate_str) if rate_str and rate_str != 'nan' else 0.0
-                    except Exception:
-                        continue
-                    
-                    stocks.append({
-                        "ticker": ticker,
-                        "name": anchor.text,
-                        "market": market_name,
-                        "price": price,
-                        "change_rate": rate,
-                        "volume": volume
-                    })
-                
-                # 다음 페이지가 있는지 확인 (네이버 시세 하단 페이지 네비게이션 체크)
-                if "pgNext" not in res.text:
-                    # '다음' 버튼이 없으면 마지막 페이지
-                    break
-                page += 1
-                
-            except Exception as e:
-                print(f"⚠️ 네이버 시세 수집 중 에러 (페이지 {page}): {e}")
-                break
-                
-    return pd.DataFrame(stocks)
 
-def get_stock_history_naver(ticker, count=40):
-    """네이버 일별 시세 API에서 특정 종목의 최근 n일치 종가 시계열을 수집합니다."""
-    url = f"https://fchart.stock.naver.com/sise.nhn?symbol={ticker}&timeFrame=day&count={count}&requestType=0"
-    headers = {
-        'User-Agent': 'Mozilla/5.0'
-    }
+def fetch_daily_snapshot(date_obj):
+    """
+    특정 날짜(datetime)의 전종목 시세 캐시 CSV를 받아온다.
+    해당 날짜 파일이 없으면(캐시 저장소 시작 이전 등) None을 반환한다.
+    """
+    date_str = date_obj.strftime("%Y-%m-%d")
+    url = f"{CACHE_BASE_URL}/{date_str}.csv"
     try:
-        res = requests.get(url, headers=headers, timeout=5)
-        if res.status_code != 200:
+        resp = requests.get(url, timeout=REQUEST_TIMEOUT)
+        if resp.status_code != 200:
             return None
-        
-        # XML 파싱
-        from bs4 import BeautifulSoup
-        soup = BeautifulSoup(res.text, 'xml')
-        items = soup.find_all("item")
-        
-        prices, highs, lows, volumes = [], [], [], []
-        for item in items:
-            data = item.get('data').split('|')
-            # 네이버 차트 데이터 포맷: 날짜|시가|고가|저가|종가|거래량
-            highs.append(int(data[2]))
-            lows.append(int(data[3]))
-            prices.append(int(data[4]))
-            volumes.append(int(data[5]))
-            
-        return prices, highs, lows, volumes
-    except Exception:
+        df = pd.read_csv(io.StringIO(resp.text), index_col=0, dtype={"Code": str})
+        df["Date"] = date_str
+        return df[["Date", "Code", "Name", "Market", "Open", "High", "Low", "Close", "Volume"]]
+    except Exception as e:
+        print(f"  [경고] {date_str} 스냅샷 로드 실패: {e}", file=sys.stderr)
         return None
 
+
+def build_panel():
+    """
+    최근 LOOKBACK_DAYS 만큼의 날짜별 스냅샷을 모두 받아서 하나의 DataFrame으로 합친다.
+    그다음 주말/공휴일 이월 데이터(직전 거래일과 완전히 동일한 행)를 제거한다.
+    """
+    today = datetime.today()
+    frames = []
+
+    for days_back in range(LOOKBACK_DAYS):
+        date_obj = today - timedelta(days=days_back)
+        df = fetch_daily_snapshot(date_obj)
+        if df is not None:
+            frames.append(df)
+
+        if (days_back + 1) % 20 == 0:
+            print(f"[{datetime.now()}] 스냅샷 수집 진행: {days_back + 1}/{LOOKBACK_DAYS}일")
+
+    if not frames:
+        raise RuntimeError("스냅샷을 하나도 받아오지 못했습니다. GitHub 캐시 저장소 상태를 확인해주세요.")
+
+    panel = pd.concat(frames, ignore_index=True)
+    panel = panel[panel["Market"].isin(["KOSPI", "KOSDAQ"])].copy()
+    panel = panel.sort_values(["Code", "Date"]).reset_index(drop=True)
+
+    # 주말/공휴일 이월 제거: 직전 날짜와 종가/거래량이 완전히 같으면 "새 거래가 없었다"고 보고 삭제
+    is_duplicate = (
+        panel.groupby("Code")[["Close", "Volume"]].shift() == panel[["Close", "Volume"]]
+    ).all(axis=1)
+    panel = panel[~is_duplicate].reset_index(drop=True)
+
+    print(f"[{datetime.now()}] 패널 데이터 구성 완료: 종목 {panel['Code'].nunique()}개, "
+          f"총 {len(panel)}행 (중복 이월 제거 후)")
+    return panel
+
+
+def calc_rsi(close: pd.Series, period: int = 14) -> pd.Series:
+    """일반적인 RSI(Wilder 방식) 계산."""
+    delta = close.diff()
+    gain = delta.clip(lower=0)
+    loss = -delta.clip(upper=0)
+    avg_gain = gain.ewm(alpha=1 / period, min_periods=period, adjust=False).mean()
+    avg_loss = loss.ewm(alpha=1 / period, min_periods=period, adjust=False).mean()
+    rs = avg_gain / avg_loss.replace(0, np.nan)
+    rsi = 100 - (100 / (1 + rs))
+    return rsi
+
+
+def calc_macd(close: pd.Series, fast=12, slow=26, signal=9):
+    """MACD선, 시그널선을 계산해서 (macd, signal_line) 튜플로 반환."""
+    ema_fast = close.ewm(span=fast, adjust=False).mean()
+    ema_slow = close.ewm(span=slow, adjust=False).mean()
+    macd_line = ema_fast - ema_slow
+    signal_line = macd_line.ewm(span=signal, adjust=False).mean()
+    return macd_line, signal_line
+
+
+def zigzag_pivots(close: pd.Series, threshold=ZIGZAG_THRESHOLD):
+    """
+    종가 시리즈에서 ZigZag 피벗(스윙 고점/저점)을 추출한다.
+    반환값: [(index_position, price, 'high' or 'low'), ...] 리스트 (시간순)
+    """
+    prices = close.values
+    n = len(prices)
+    if n < 5:
+        return []
+
+    pivots = []
+    trend = None
+    last_pivot_idx = 0
+    last_pivot_price = prices[0]
+
+    for i in range(1, n):
+        change = (prices[i] - last_pivot_price) / last_pivot_price
+
+        if trend is None:
+            if change >= threshold:
+                trend = "up"
+                last_pivot_price = prices[i]
+                last_pivot_idx = i
+            elif change <= -threshold:
+                trend = "down"
+                last_pivot_price = prices[i]
+                last_pivot_idx = i
+        elif trend == "up":
+            if prices[i] >= last_pivot_price:
+                last_pivot_price = prices[i]
+                last_pivot_idx = i
+            elif (prices[i] - last_pivot_price) / last_pivot_price <= -threshold:
+                pivots.append((last_pivot_idx, last_pivot_price, "high"))
+                trend = "down"
+                last_pivot_price = prices[i]
+                last_pivot_idx = i
+        elif trend == "down":
+            if prices[i] <= last_pivot_price:
+                last_pivot_price = prices[i]
+                last_pivot_idx = i
+            elif (prices[i] - last_pivot_price) / last_pivot_price >= threshold:
+                pivots.append((last_pivot_idx, last_pivot_price, "low"))
+                trend = "up"
+                last_pivot_price = prices[i]
+                last_pivot_idx = i
+
+    if trend is not None:
+        pivots.append((last_pivot_idx, last_pivot_price, "high" if trend == "up" else "low"))
+
+    return pivots
+
+
+def fibonacci_levels(low: float, high: float) -> dict:
+    diff = high - low
+    return {
+        "23.6%": high - diff * 0.236,
+        "38.2%": high - diff * 0.382,
+        "50.0%": high - diff * 0.5,
+        "61.8%": high - diff * 0.618,
+        "78.6%": high - diff * 0.786,
+    }
+
+
+def check_fibonacci_support(close: pd.Series):
+    pivots = zigzag_pivots(close)
+    if len(pivots) < 2:
+        return None
+
+    (_, price_a, type_a), (_, price_b, type_b) = pivots[-2], pivots[-1]
+    if type_a == type_b:
+        return None
+
+    low = min(price_a, price_b)
+    high = max(price_a, price_b)
+    if high == low:
+        return None
+
+    levels = fibonacci_levels(low, high)
+    current_price = close.iloc[-1]
+
+    for level_name, level_price in levels.items():
+        if level_price == 0:
+            continue
+        if abs(current_price - level_price) / level_price <= FIB_TOLERANCE:
+            return level_name
+
+    return None
+
+
+def analyze_stock(group: pd.DataFrame):
+    """
+    종목 하나의 시계열(Date순 정렬된 DataFrame)을 받아서 신호 리스트와 부가정보를 계산한다.
+    데이터가 부족하면 None 반환.
+    """
+    if len(group) < 65:  # MA60 계산에 최소 65개 거래일 필요
+        return None
+
+    close = group["Close"].reset_index(drop=True)
+    volume = group["Volume"].reset_index(drop=True)
+
+    ma5 = close.rolling(5).mean()
+    ma20 = close.rolling(20).mean()
+    ma60 = close.rolling(60).mean()
+
+    rsi = calc_rsi(close)
+    macd_line, signal_line = calc_macd(close)
+
+    signals = []
+
+    if ma5.iloc[-1] > ma20.iloc[-1] > ma60.iloc[-1]:
+        signals.append("정배열")
+
+    if pd.notna(rsi.iloc[-2]) and pd.notna(rsi.iloc[-1]):
+        if rsi.iloc[-2] <= 30 and rsi.iloc[-1] > 30:
+            signals.append("RSI과매도탈출")
+
+    if (macd_line.iloc[-2] < signal_line.iloc[-2]) and (macd_line.iloc[-1] > signal_line.iloc[-1]):
+        signals.append("MACD골든크로스")
+
+    avg_volume_20 = volume.iloc[-21:-1].mean()
+    if avg_volume_20 > 0 and volume.iloc[-1] >= avg_volume_20 * VOLUME_SURGE_RATIO:
+        signals.append("거래량급증")
+
+    fib_hit = check_fibonacci_support(close)
+    if fib_hit:
+        signals.append(f"피보나치{fib_hit}지지")
+
+    if not signals:
+        return {"signals": [], "score": 0}
+
+    prev_close = close.iloc[-2]
+    change_rate = ((close.iloc[-1] - prev_close) / prev_close * 100) if prev_close else None
+
+    return {
+        "signals": signals,
+        "score": len(signals),
+        "price": int(close.iloc[-1]),
+        "change_rate": round(float(change_rate), 2) if change_rate is not None else None,
+        "volume": int(volume.iloc[-1]),
+        "volume_ratio": round(float(volume.iloc[-1] / avg_volume_20), 2) if avg_volume_20 > 0 else None,
+        "rsi": round(float(rsi.iloc[-1]), 1) if pd.notna(rsi.iloc[-1]) else None,
+        "ma5": ma5, "ma20": ma20, "ma60": ma60,  # 상세페이지 차트용 (JSON 저장 전에 제거됨)
+    }
+
+
+def save_history_json(ticker: str, name: str, group: pd.DataFrame, ma5, ma20, ma60):
+    """상세 차트 페이지용 최근 시세 이력을 data/history/{ticker}.json 으로 저장한다."""
+    tail = group.tail(HISTORY_DAYS_TO_SAVE).reset_index(drop=True)
+    n = len(tail)
+
+    history = {
+        "ticker": ticker,
+        "name": name,
+        "dates": tail["Date"].tolist(),
+        "open": tail["Open"].astype(int).tolist(),
+        "high": tail["High"].astype(int).tolist(),
+        "low": tail["Low"].astype(int).tolist(),
+        "close": tail["Close"].astype(int).tolist(),
+        "volume": tail["Volume"].astype(int).tolist(),
+        "ma5": [None if pd.isna(v) else round(float(v), 1) for v in ma5.tail(n)],
+        "ma20": [None if pd.isna(v) else round(float(v), 1) for v in ma20.tail(n)],
+        "ma60": [None if pd.isna(v) else round(float(v), 1) for v in ma60.tail(n)],
+    }
+
+    os.makedirs("data/history", exist_ok=True)
+    with open(f"data/history/{ticker}.json", "w", encoding="utf-8") as f:
+        json.dump(history, f, ensure_ascii=False)
+
+
+def clean_history_dir():
+    """
+    이전 실행에서 만들어진 history JSON을 전부 지운다.
+    (오늘 신호가 없는 종목의 차트 데이터가 저장소에 계속 남아 쌓이는 것을 방지)
+    """
+    history_dir = "data/history"
+    if os.path.isdir(history_dir):
+        for fname in os.listdir(history_dir):
+            if fname.endswith(".json"):
+                os.remove(os.path.join(history_dir, fname))
+
+
 def main():
-    print(f"[{datetime.now()}] 🚀 네이버 금융 다이렉트 엔진 기동...")
+    panel = build_panel()
+    clean_history_dir()
+
+    results = []
+
+    for code, group in panel.groupby("Code"):
+        group = group.sort_values("Date").reset_index(drop=True)
+        name = group["Name"].iloc[-1]
+        market = group["Market"].iloc[-1]
+
+        analysis = analyze_stock(group)
+        if not analysis or analysis["score"] < MIN_SCORE_TO_INCLUDE:
+            continue
+
+        ma5, ma20, ma60 = analysis.pop("ma5"), analysis.pop("ma20"), analysis.pop("ma60")
+
+        results.append({
+            "ticker": code,
+            "name": name,
+            "market": market,
+            **analysis,
+        })
+
+        save_history_json(code, name, group, ma5, ma20, ma60)
+
+    results.sort(key=lambda x: x["score"], reverse=True)
+
+    output = {
+        "update_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "market": "KOSPI+KOSDAQ",
+        "total_scanned": int(panel["Code"].nunique()),
+        "total_signals": len(results),
+        "stocks": results,
+    }
+
     os.makedirs("data", exist_ok=True)
+    with open("data/signals.json", "w", encoding="utf-8") as f:
+        json.dump(output, f, ensure_ascii=False, indent=2)
 
-    try:
-        df_today = get_naver_market_data()
-        if df_today.empty:
-            print("❌ 당일 데이터를 네이버에서 수집하지 못했습니다.")
-            return
+    print(f"[{datetime.now()}] 완료: 전체 {panel['Code'].nunique()}종목 중 {len(results)}종목에서 신호 발견")
 
-        print(f"✅ 오늘 수집된 총 종목 수: {len(df_today)}개")
 
-        results = []
-        scanned_count = 0
-
-        # 속도 향상을 위해 수급이 강하거나 최소한의 움직임이 있는 종목 우선 필터링
-        # 거래량이 10,000주 미만이거나 500원 미만 동전주는 1차 필터링하여 불필요한 네트워크 스캔 제거
-        filtered_today = df_today[(df_today['price'] >= 500) & (df_today['volume'] >= 10000)]
-        total_to_scan = len(filtered_today)
-        
-        print(f"🔍 필터링 완료 (500원 이상 + 거래량 1만주 이상): {total_to_scan}개 종목 스캔 진행...")
-
-        for idx, row in filtered_today.iterrows():
-            ticker = row['ticker']
-            name = row['name']
-            price = int(row['price'])
-            volume = int(row['volume'])
-            rate = float(row['change_rate'])
-            market_type = row['market']
-
-            scanned_count += 1
-            if scanned_count % 100 == 0:
-                print(f" 진행 중: {scanned_count}/{total_to_scan} (감지 신호: {len(results)}개)")
-
-            # 우선주, 스팩, ETF 노이즈 제거
-            if "우" in name[-1:] or "우B" in name or "우C" in name or "스팩" in name or name.endswith("스팩"):
-                continue
-            if "KODEX" in name or "TIGER" in name or "KBSTAR" in name or "HANARO" in name or "ACE" in name or "SOL" in name:
-                continue
-
-            # 네이버 일별 데이터 가져오기 (최근 40일치)
-            history = get_stock_history_naver(ticker, 40)
-            if not history:
-                continue
-                
-            p_list, h_list, l_list, v_list = history
-            if len(p_list) < 30:
-                continue
-
-            p_series = pd.Series(p_list)
-            
-            # 1. 거래량 급증 계산
-            avg_vol_20
+if __name__ == "__main__":
+    main()
