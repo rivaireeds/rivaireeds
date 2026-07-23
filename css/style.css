@@ -564,6 +564,9 @@ body {
   cursor: pointer;
 }
 .lookup-go:hover { background: #f0b64d33; }
+
+.tv-symbol-row { display: flex; gap: 8px; margin-bottom: 8px; }
+.tv-symbol-row .lookup-input { font-family: var(--font-mono); }
 .lookup-hint { font-size: 11px; color: var(--text-dim); margin-top: 8px; }
 
 .lookup-list { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }

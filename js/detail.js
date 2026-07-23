@@ -180,6 +180,14 @@
 
       <div class="chart-card">
         <h3>일봉 차트 (TradingView)</h3>
+        <div class="tv-symbol-row">
+          <input type="text" id="tvSymbolInput" class="lookup-input" value="${tradingViewSymbol(ticker)}" />
+          <button id="tvSymbolBtn" class="lookup-go">차트 적용</button>
+        </div>
+        <p class="lookup-hint">
+          자동으로 안 맞으면 여기서 직접 심볼을 검색·수정할 수 있어요. 형식은 <code>KRX:종목코드</code> (예: KRX:005930).
+          차트 안에서 좌측 상단 종목명을 클릭해도 TradingView 자체 검색창이 열려요.
+        </p>
         <div id="tvChartContainer" style="height:460px;"></div>
         <p class="wave-basis">TradingView 위젯이며, 무료 버전 기준 최대 15분 지연 시세일 수 있어요. 캔들/보조지표/타임프레임을 직접 조절할 수 있어요.</p>
       </div>
@@ -215,17 +223,18 @@
     `;
 
     drawCharts(history, info);
-    drawTradingView(ticker); // history.ticker가 아니라 URL의 ticker(원본값)를 그대로 사용
+    drawTradingView(tradingViewSymbol(ticker)); // URL의 ticker(원본값) 기준 기본 심볼로 최초 렌더링
+    wireTvSymbolControls();
   }
 
-  function drawTradingView(tickerCode) {
+  function drawTradingView(symbol) {
     const tvContainer = document.getElementById("tvChartContainer");
     if (typeof TradingView === "undefined") {
       tvContainer.innerHTML =
         `<p class="empty-state">TradingView 위젯을 불러오지 못했어요. 잠시 후 새로고침 해주세요.</p>`;
       return;
     }
-    const symbol = tradingViewSymbol(tickerCode);
+    tvContainer.innerHTML = ""; // 기존 위젯(iframe) 제거 후 새로 그림 (심볼 변경 시 재사용)
     console.log("[detail.js] TradingView 심볼:", symbol); // 문제 재발 시 브라우저 콘솔(F12)에서 확인용
     new TradingView.widget({
       autosize: true,
@@ -240,7 +249,28 @@
       hide_top_toolbar: false,
       hide_legend: false,
       save_image: false,
+      allow_symbol_change: true, // 위젯 내부에서도 좌측 상단 종목명 클릭으로 검색 가능
       container_id: "tvChartContainer",
+    });
+  }
+
+  function wireTvSymbolControls() {
+    const input = document.getElementById("tvSymbolInput");
+    const btn = document.getElementById("tvSymbolBtn");
+    if (!input || !btn) return;
+
+    const apply = () => {
+      const raw = input.value.trim();
+      if (!raw) return;
+      // 콜론 없이 코드만 입력해도 알아서 KRX: 접두사를 붙여줌 (예: "005930" -> "KRX:005930")
+      const symbol = raw.includes(":") ? raw.toUpperCase() : `KRX:${raw}`;
+      input.value = symbol;
+      drawTradingView(symbol);
+    };
+
+    btn.addEventListener("click", apply);
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") apply();
     });
   }
 
