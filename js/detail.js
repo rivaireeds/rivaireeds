@@ -185,13 +185,14 @@
       </div>
 
       <div class="chart-card">
-        <h3>매매 타점 오버레이 (종가 &amp; 이동평균 5/20/60일)</h3>
+        <h3>일봉 캔들 &amp; 매매 타점 오버레이</h3>
         <div class="chart-wrap"><canvas id="priceChart"></canvas></div>
         <div class="legend-row">
-          <span class="legend-item"><span class="legend-dot" style="background:#f0b64d"></span>종가</span>
-          <span class="legend-item"><span class="legend-dot" style="background:#e5484d"></span>MA5</span>
-          <span class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span>MA20</span>
-          <span class="legend-item"><span class="legend-dot" style="background:#8b93a7"></span>MA60</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#e5484d"></span>상승봉</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span>하락봉</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#f0b64d"></span>MA5</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#3ddc97"></span>MA20</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#a9b4cc"></span>MA60</span>
           ${info.buy_point ? `<span class="legend-item"><span class="legend-dot" style="background:#f0b64d;opacity:.6"></span>매수타점(점선)</span>` : ""}
           ${info.target_price ? `<span class="legend-item"><span class="legend-dot" style="background:#3ddc97"></span>목표가(점선)</span>` : ""}
           ${info.stop_loss ? `<span class="legend-item"><span class="legend-dot" style="background:#e5484d"></span>손절가(점선)</span>` : ""}
@@ -214,18 +215,21 @@
     `;
 
     drawCharts(history, info);
-    drawTradingView(history.ticker);
+    drawTradingView(ticker); // history.ticker가 아니라 URL의 ticker(원본값)를 그대로 사용
   }
 
-  function drawTradingView(ticker) {
+  function drawTradingView(tickerCode) {
+    const tvContainer = document.getElementById("tvChartContainer");
     if (typeof TradingView === "undefined") {
-      document.getElementById("tvChartContainer").innerHTML =
+      tvContainer.innerHTML =
         `<p class="empty-state">TradingView 위젯을 불러오지 못했어요. 잠시 후 새로고침 해주세요.</p>`;
       return;
     }
+    const symbol = tradingViewSymbol(tickerCode);
+    console.log("[detail.js] TradingView 심볼:", symbol); // 문제 재발 시 브라우저 콘솔(F12)에서 확인용
     new TradingView.widget({
       autosize: true,
-      symbol: tradingViewSymbol(ticker),
+      symbol: symbol,
       interval: "D",
       timezone: "Asia/Seoul",
       theme: "dark",
@@ -244,9 +248,134 @@
     return labels.map(() => value);
   }
 
-  function drawCharts(history, info) {
-    const labels = history.dates.map((d) => d.slice(5)); // MM-DD만 표시
+  function toXY(dates, values) {
+    return dates.map((d, i) => ({ x: new Date(d).valueOf(), y: values[i] }));
+  }
 
+  function drawCharts(history, info) {
+    const labels = history.dates.map((d) => d.slice(5)); // MM-DD만 표시 (라인차트 폴백용)
+
+    const canCandlestick =
+      typeof Chart !== "undefined" &&
+      Chart.registry &&
+      Chart.registry.controllers.get("candlestick");
+
+    if (canCandlestick) {
+      try {
+        drawCandlestickOverlay(history, info);
+      } catch (err) {
+        console.warn("[detail.js] 캔들스틱 차트 렌더링 실패, 라인차트로 대체합니다:", err);
+        drawLineOverlay(history, info, labels);
+      }
+    } else {
+      console.warn("[detail.js] 캔들스틱 플러그인을 불러오지 못해 라인차트로 대체합니다.");
+      drawLineOverlay(history, info, labels);
+    }
+
+    drawVolumeChart(history, labels);
+  }
+
+  function drawCandlestickOverlay(history, info) {
+    const candleData = history.dates.map((d, i) => ({
+      x: new Date(d).valueOf(),
+      o: history.open[i],
+      h: history.high[i],
+      l: history.low[i],
+      c: history.close[i],
+    }));
+
+    const datasets = [
+      {
+        label: "일봉",
+        type: "candlestick",
+        data: candleData,
+        color: { up: "#e5484d", down: "#3b82f6", unchanged: "#7c869c" }, // 국내 관례: 상승=빨강, 하락=파랑
+        borderColor: { up: "#e5484d", down: "#3b82f6", unchanged: "#7c869c" },
+      },
+      {
+        label: "MA5",
+        type: "line",
+        data: toXY(history.dates, history.ma5),
+        borderColor: "#f0b64d",
+        borderWidth: 1.5,
+        pointRadius: 0,
+        tension: 0.15,
+      },
+      {
+        label: "MA20",
+        type: "line",
+        data: toXY(history.dates, history.ma20),
+        borderColor: "#3ddc97",
+        borderWidth: 1.5,
+        pointRadius: 0,
+        tension: 0.15,
+      },
+      {
+        label: "MA60",
+        type: "line",
+        data: toXY(history.dates, history.ma60),
+        borderColor: "#a9b4cc",
+        borderWidth: 1.5,
+        pointRadius: 0,
+        tension: 0.15,
+      },
+    ];
+
+    if (info?.buy_point) {
+      datasets.push({
+        label: "매수타점",
+        type: "line",
+        data: toXY(history.dates, flatLine(history.dates, info.buy_point)),
+        borderColor: "#f0b64d",
+        borderWidth: 1,
+        borderDash: [5, 4],
+        pointRadius: 0,
+      });
+    }
+    if (info?.target_price) {
+      datasets.push({
+        label: "목표가",
+        type: "line",
+        data: toXY(history.dates, flatLine(history.dates, info.target_price)),
+        borderColor: "#3ddc97",
+        borderWidth: 1,
+        borderDash: [5, 4],
+        pointRadius: 0,
+      });
+    }
+    if (info?.stop_loss) {
+      datasets.push({
+        label: "손절가",
+        type: "line",
+        data: toXY(history.dates, flatLine(history.dates, info.stop_loss)),
+        borderColor: "#e5484d",
+        borderWidth: 1,
+        borderDash: [2, 3],
+        pointRadius: 0,
+      });
+    }
+
+    new Chart(document.getElementById("priceChart"), {
+      type: "candlestick",
+      data: { datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: {
+            type: "time",
+            time: { unit: "week" },
+            ticks: { color: "#7c869c", maxTicksLimit: 10 },
+            grid: { color: "#182137" },
+          },
+          y: { ticks: { color: "#7c869c" }, grid: { color: "#182137" } },
+        },
+      },
+    });
+  }
+
+  function drawLineOverlay(history, info, labels) {
     const priceDatasets = [
       {
         label: "종가",
@@ -328,7 +457,9 @@
         },
       },
     });
+  }
 
+  function drawVolumeChart(history, labels) {
     new Chart(document.getElementById("volumeChart"), {
       type: "bar",
       data: {
