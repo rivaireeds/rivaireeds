@@ -115,11 +115,38 @@ def build_panel():
     return panel
 
 
+def load_custom_watchlist():
+    """
+    watchlist.txt에 사용자가 직접 적어둔 종목 코드를 읽어온다.
+    시가총액 순위와 무관하게 이 종목들은 항상 조회 가능 목록에 포함된다
+    (중소형주 등 시총 상위 300에 안 들어가는 보유/관심 종목을 위한 것).
+    파일이 없으면 조용히 빈 세트를 반환한다.
+    """
+    path = "watchlist.txt"
+    if not os.path.exists(path):
+        return set()
+
+    codes = set()
+    with open(path, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.split("#", 1)[0].strip()  # '#'는 주석
+            if not line:
+                continue
+            code = line.zfill(6) if line.isdigit() else line  # "5930" -> "005930" 자동 보정
+            codes.add(code)
+
+    if codes:
+        print(f"[{datetime.now()}] 커스텀 워치리스트(watchlist.txt) {len(codes)}개 종목 추가 반영")
+    return codes
+
+
 def get_watchlist_codes(panel: pd.DataFrame, top_n=WATCHLIST_TOP_N):
     """
     시장(KOSPI/KOSDAQ)별로 '가장 최근 날짜' 기준 시가총액 상위 top_n 종목 코드를 뽑는다.
     이 종목들은 매수신호가 하나도 없어도(score=0) 상세페이지에서 항상 조회 가능하게 만든다
     (배찌님이 보유/관심 있는 대형주는 신호가 없을 때도 확인하고 싶을 수 있으니까).
+
+    여기에 watchlist.txt로 직접 지정한 종목(시총 순위 무관)도 합쳐진다.
     """
     latest_date = panel["Date"].max()
     latest = panel[panel["Date"] == latest_date]
@@ -134,8 +161,11 @@ def get_watchlist_codes(panel: pd.DataFrame, top_n=WATCHLIST_TOP_N):
         )
         watchlist.update(top)
 
-    print(f"[{datetime.now()}] 워치리스트(시가총액 상위) 구성: {len(watchlist)}개 종목 "
-          f"(KOSPI/KOSDAQ 각 상위 {top_n})")
+    market_cap_count = len(watchlist)
+    watchlist.update(load_custom_watchlist())
+
+    print(f"[{datetime.now()}] 워치리스트(시가총액 상위) 구성: {market_cap_count}개 종목 "
+          f"(KOSPI/KOSDAQ 각 상위 {top_n}) + 커스텀 지정 포함 총 {len(watchlist)}개")
     return watchlist
 
 
@@ -523,7 +553,36 @@ def main():
         market = group["Market"].iloc[-1]
 
         analysis = analyze_stock(group)
+
         if not analysis:
+            # 상장 65거래일 미만 등으로 전체 분석은 안 되지만, 워치리스트에 있다면
+            # "왜 없는지"라도 알 수 있게 최소 정보만 담은 스텁 항목을 만든다.
+            if code in watchlist_codes:
+                close_stub = group["Close"].reset_index(drop=True)
+                last_close = float(close_stub.iloc[-1])
+                prev_close = float(close_stub.iloc[-2]) if len(close_stub) >= 2 else None
+                change_rate = (
+                    round((last_close - prev_close) / prev_close * 100, 2)
+                    if prev_close else None
+                )
+                stub = {
+                    "ticker": code, "name": name, "market": market,
+                    "signals": [], "score": 0,
+                    "price": int(last_close), "change_rate": change_rate,
+                    "volume": int(group["Volume"].iloc[-1]), "volume_ratio": None,
+                    "rsi": None, "wave_direction": None, "wave_number": None,
+                    "wave_progress_pct": None, "buy_point": None,
+                    "target_price": None, "stop_loss": None,
+                    "rating_stars": 1, "rating_label": "관망",
+                    "insufficient_data": True,
+                    "trading_days_available": len(group),
+                    "ma5": close_stub.rolling(5).mean(),
+                    "ma20": close_stub.rolling(20).mean(),
+                    "ma60": close_stub.rolling(60).mean(),
+                }
+                save_history_json(code, name, market, group, stub, [])
+                stub = {k: v for k, v in stub.items() if k not in ("ma5", "ma20", "ma60")}
+                universe_stocks.append(stub)
             continue
 
         has_signal = analysis["score"] >= MIN_SCORE_TO_INCLUDE
@@ -551,6 +610,7 @@ def main():
 
     output = {
         "update_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "data_date": panel["Date"].max(),  # 실제 시세가 반영된 마지막 거래일 (실행 시각과 다를 수 있음)
         "market": "KOSPI+KOSDAQ",
         "total_scanned": int(panel["Code"].nunique()),
         "total_signals": len(signal_stocks),

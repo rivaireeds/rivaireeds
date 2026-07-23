@@ -42,6 +42,7 @@
 
       lastUpdateTime = data.update_time || null;
       document.getElementById("updateTime").textContent = lastUpdateTime || "-";
+      document.getElementById("dataDate").textContent = data.data_date || "-";
       document.getElementById("statScanned").textContent =
         (data.total_scanned || 0).toLocaleString();
       document.getElementById("statSignals").textContent =

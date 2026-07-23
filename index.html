@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=4" />
+<link rel="stylesheet" href="css/style.css?v=5" />
 </head>
 <body>
 
@@ -21,7 +21,9 @@
       <button id="refreshBtn" class="refresh-btn" title="최신 계산 결과를 다시 불러옵니다">
         <span class="refresh-icon">↻</span> 새로고침
       </button>
-      <span class="update-label">최종 갱신</span>
+      <span class="update-label">기준일</span>
+      <span class="update-time" id="dataDate">-</span>
+      <span class="update-label" style="margin-left:10px;">실행</span>
       <span class="update-time" id="updateTime">-</span>
     </div>
   </div>
@@ -111,6 +113,6 @@
 
 </main>
 
-<script src="js/dashboard.js?v=4"></script>
+<script src="js/dashboard.js?v=5"></script>
 </body>
 </html>

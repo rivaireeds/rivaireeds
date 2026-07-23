@@ -68,18 +68,20 @@
       return;
     }
 
+    let universeStocks = [];
     try {
       const res = await fetch(`data/signals.json?t=${Date.now()}`);
       const data = await res.json();
       waveBasisNote = data.wave_basis_note || "";
+      universeStocks = data.universe || [];
     } catch (err) {
-      // 기준 설명 문구를 못 가져와도 나머지 렌더링에는 지장 없음
+      // 기준 설명 문구/이름검색용 목록을 못 가져와도 차트 자체는 렌더링 가능
     }
 
-    render(history, waveBasisNote);
+    render(history, waveBasisNote, universeStocks);
   }
 
-  function render(history, waveBasisNote) {
+  function render(history, waveBasisNote, universeStocks) {
     const info = history.analysis || {};
     const rate = info.change_rate;
     const rateText =
@@ -144,6 +146,11 @@
       ${
         hasSignals
           ? `<div class="tag-list" style="margin-bottom:20px;">${tags}</div>`
+          : info.insufficient_data
+          ? `<p class="lookup-hint" style="margin-bottom:20px;color:var(--up);">
+              상장/데이터 수집 후 거래일이 아직 부족해서(현재 ${info.trading_days_available}일, 분석에는 65일 필요)
+              전체 신호·파동 분석은 준비되지 않았어요. 현재가·차트만 확인 가능해요.
+            </p>`
           : `<p class="lookup-hint" style="margin-bottom:20px;">현재 감지된 기술적 신호가 없어요 (워치리스트 종목이라 항상 조회는 가능해요).</p>`
       }
 
@@ -184,8 +191,9 @@
           <input type="text" id="tvSymbolInput" class="lookup-input" value="${tradingViewSymbol(ticker)}" />
           <button id="tvSymbolBtn" class="lookup-go">차트 적용</button>
         </div>
-        <p class="lookup-hint">
-          자동으로 안 맞으면 여기서 직접 심볼을 검색·수정할 수 있어요. 형식은 <code>KRX:종목코드</code> (예: KRX:005930).
+        <p class="lookup-hint" id="tvSymbolHint">
+          종목명(한글), 코드, "거래소:코드" 형식 모두 입력 가능해요 (예: 삼성전자, 005930, KRX:005930).
+          워치리스트(시총 상위 300) 밖 종목은 이름 검색이 안 될 수 있어요 — 이땐 "거래소:코드"로 직접 입력해주세요.
           차트 안에서 좌측 상단 종목명을 클릭해도 TradingView 자체 검색창이 열려요.
         </p>
         <div id="tvChartContainer" style="height:460px;"></div>
@@ -224,7 +232,7 @@
 
     drawCharts(history, info);
     drawTradingView(tradingViewSymbol(ticker)); // URL의 ticker(원본값) 기준 기본 심볼로 최초 렌더링
-    wireTvSymbolControls();
+    wireTvSymbolControls(universeStocks);
   }
 
   function drawTradingView(symbol) {
@@ -254,17 +262,48 @@
     });
   }
 
-  function wireTvSymbolControls() {
+  function wireTvSymbolControls(universeStocks) {
     const input = document.getElementById("tvSymbolInput");
     const btn = document.getElementById("tvSymbolBtn");
+    const hint = document.getElementById("tvSymbolHint");
     if (!input || !btn) return;
 
+    // 입력값에서 심볼을 찾아낸다: 1) 이미 "거래소:코드" 형식이면 그대로,
+    // 2) 숫자 코드만 쳤으면 KRX: 붙이기, 3) 종목명이면 워치리스트에서 티커를 찾아 변환
+    function resolveSymbol(raw) {
+      const q = raw.trim();
+      if (!q) return null;
+
+      if (q.includes(":")) return q.toUpperCase();
+      if (/^\d{5,6}$/.test(q)) return `KRX:${q}`;
+
+      const lower = q.toLowerCase();
+      const exact = universeStocks.find((s) => s.name.toLowerCase() === lower);
+      if (exact) return `KRX:${exact.ticker}`;
+
+      const partial = universeStocks.find((s) => s.name.toLowerCase().includes(lower));
+      if (partial) return `KRX:${partial.ticker}`;
+
+      return null;
+    }
+
     const apply = () => {
-      const raw = input.value.trim();
-      if (!raw) return;
-      // 콜론 없이 코드만 입력해도 알아서 KRX: 접두사를 붙여줌 (예: "005930" -> "KRX:005930")
-      const symbol = raw.includes(":") ? raw.toUpperCase() : `KRX:${raw}`;
+      const raw = input.value;
+      const symbol = resolveSymbol(raw);
+
+      if (!symbol) {
+        if (hint) {
+          hint.textContent = `"${raw}"를 찾을 수 없어요. 워치리스트(시총 상위 300) 밖 종목이면 이름 검색이 안 될 수 있어요 — 이 경우 "거래소:코드"(예: KRX:005930)로 직접 입력해주세요.`;
+          hint.style.color = "var(--up)";
+        }
+        return;
+      }
+
       input.value = symbol;
+      if (hint) {
+        hint.textContent = "자동으로 안 맞으면 여기서 직접 심볼을 검색·수정할 수 있어요. 종목명(한글)이나 코드, \"거래소:코드\" 형식 모두 입력 가능해요.";
+        hint.style.color = "";
+      }
       drawTradingView(symbol);
     };
 
