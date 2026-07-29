@@ -48,11 +48,6 @@
     return "rating-hold";
   }
 
-  // TradingView는 한국거래소(코스피/코스닥)를 통합해서 "KRX:" 접두사 하나로 심볼을 제공한다
-  function tradingViewSymbol(ticker) {
-    return `KRX:${ticker}`;
-  }
-
   async function load() {
     let history, waveBasisNote = "";
 
@@ -68,20 +63,18 @@
       return;
     }
 
-    let universeStocks = [];
     try {
       const res = await fetch(`data/signals.json?t=${Date.now()}`);
       const data = await res.json();
       waveBasisNote = data.wave_basis_note || "";
-      universeStocks = data.universe || [];
     } catch (err) {
-      // 기준 설명 문구/이름검색용 목록을 못 가져와도 차트 자체는 렌더링 가능
+      // 기준 설명 문구를 못 가져와도 차트 자체는 렌더링 가능
     }
 
-    render(history, waveBasisNote, universeStocks);
+    render(history, waveBasisNote);
   }
 
-  function render(history, waveBasisNote, universeStocks) {
+  function render(history, waveBasisNote) {
     const info = history.analysis || {};
     const rate = info.change_rate;
     const rateText =
@@ -186,32 +179,50 @@
       }
 
       <div class="chart-card">
-        <h3>일봉 차트 (TradingView)</h3>
-        <div class="tv-symbol-row">
-          <input type="text" id="tvSymbolInput" class="lookup-input" value="${tradingViewSymbol(ticker)}" />
-          <button id="tvSymbolBtn" class="lookup-go">차트 적용</button>
-        </div>
-        <p class="lookup-hint" id="tvSymbolHint">
-          종목명(한글), 코드, "거래소:코드" 형식 모두 입력 가능해요 (예: 삼성전자, 005930, KRX:005930).
-          워치리스트(시총 상위 300) 밖 종목은 이름 검색이 안 될 수 있어요 — 이땐 "거래소:코드"로 직접 입력해주세요.
-          차트 안에서 좌측 상단 종목명을 클릭해도 TradingView 자체 검색창이 열려요.
-        </p>
-        <div id="tvChartContainer" style="height:460px;"></div>
-        <p class="wave-basis">TradingView 위젯이며, 무료 버전 기준 최대 15분 지연 시세일 수 있어요. 캔들/보조지표/타임프레임을 직접 조절할 수 있어요.</p>
-      </div>
-
-      <div class="chart-card">
         <h3>일봉 캔들 &amp; 매매 타점 오버레이</h3>
-        <div class="chart-wrap"><canvas id="priceChart"></canvas></div>
+        <p class="lookup-hint" style="margin-bottom:10px;">
+          마지막 캔들 기준일: <strong style="color:var(--text);">${history.dates.at(-1)}</strong>
+          (실시간 아님 — 장마감 후 하루 1회 갱신되는 데이터예요. "오늘 vs 어제"는 GitHub Actions 실행 시점에
+          데이터 소스가 그날 시세를 이미 게시했는지에 따라 달라져요)
+        </p>
+        <div class="chart-wrap main"><canvas id="priceChart"></canvas></div>
         <div class="legend-row">
           <span class="legend-item"><span class="legend-dot" style="background:#e5484d"></span>상승봉</span>
           <span class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span>하락봉</span>
           <span class="legend-item"><span class="legend-dot" style="background:#f0b64d"></span>MA5</span>
           <span class="legend-item"><span class="legend-dot" style="background:#3ddc97"></span>MA20</span>
           <span class="legend-item"><span class="legend-dot" style="background:#a9b4cc"></span>MA60</span>
+          ${history.ma112?.some((v) => v !== null) ? `<span class="legend-item"><span class="legend-dot" style="background:#c084fc"></span>MA112</span>` : ""}
+          ${history.ma224?.some((v) => v !== null) ? `<span class="legend-item"><span class="legend-dot" style="background:#60a5fa"></span>MA224</span>` : ""}
           ${info.buy_point ? `<span class="legend-item"><span class="legend-dot" style="background:#f0b64d;opacity:.6"></span>매수타점(점선)</span>` : ""}
           ${info.target_price ? `<span class="legend-item"><span class="legend-dot" style="background:#3ddc97"></span>목표가(점선)</span>` : ""}
           ${info.stop_loss ? `<span class="legend-item"><span class="legend-dot" style="background:#e5484d"></span>손절가(점선)</span>` : ""}
+          ${history.signal_markers?.length ? `<span class="legend-item">▲ 매수신호 · ▼ 매도신호 (과거 발생 지점)</span>` : ""}
+        </div>
+        <p class="wave-basis">
+          112·224일선은 데이터가 아직 부족해서 안 보일 수 있어요 (캐시 저장소가 2026년 3월부터 시작돼서
+          현재 확보 가능한 거래일수가 112일 미만이에요 — 시간이 지나며 자동으로 채워져요).
+          ▲▼ 마커는 정배열전환/역배열전환, RSI 30·70 돌파, MACD 골든·데드크로스가 과거에 발생했던 지점이에요.
+        </p>
+      </div>
+
+      <div class="chart-card">
+        <h3>MACD (12,26,9)</h3>
+        <div class="chart-wrap sub"><canvas id="macdChart"></canvas></div>
+        <div class="legend-row">
+          <span class="legend-item"><span class="legend-dot" style="background:#f0b64d"></span>MACD선</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#8b93a7"></span>시그널선</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#e5484d"></span>+히스토그램</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span>−히스토그램</span>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <h3>RSI (14)</h3>
+        <div class="chart-wrap sub"><canvas id="rsiChart"></canvas></div>
+        <div class="legend-row">
+          <span class="legend-item"><span class="legend-dot" style="background:#f0b64d"></span>RSI</span>
+          <span class="legend-item">점선: 과매수(70) / 과매도(30) 기준선</span>
         </div>
       </div>
 
@@ -231,86 +242,6 @@
     `;
 
     drawCharts(history, info);
-    drawTradingView(tradingViewSymbol(ticker)); // URL의 ticker(원본값) 기준 기본 심볼로 최초 렌더링
-    wireTvSymbolControls(universeStocks);
-  }
-
-  function drawTradingView(symbol) {
-    const tvContainer = document.getElementById("tvChartContainer");
-    if (typeof TradingView === "undefined") {
-      tvContainer.innerHTML =
-        `<p class="empty-state">TradingView 위젯을 불러오지 못했어요. 잠시 후 새로고침 해주세요.</p>`;
-      return;
-    }
-    tvContainer.innerHTML = ""; // 기존 위젯(iframe) 제거 후 새로 그림 (심볼 변경 시 재사용)
-    console.log("[detail.js] TradingView 심볼:", symbol); // 문제 재발 시 브라우저 콘솔(F12)에서 확인용
-    new TradingView.widget({
-      autosize: true,
-      symbol: symbol,
-      interval: "D",
-      timezone: "Asia/Seoul",
-      theme: "dark",
-      style: "1", // 캔들스틱
-      locale: "kr",
-      toolbar_bg: "#0a0f1a",
-      enable_publishing: false,
-      hide_top_toolbar: false,
-      hide_legend: false,
-      save_image: false,
-      allow_symbol_change: true, // 위젯 내부에서도 좌측 상단 종목명 클릭으로 검색 가능
-      container_id: "tvChartContainer",
-    });
-  }
-
-  function wireTvSymbolControls(universeStocks) {
-    const input = document.getElementById("tvSymbolInput");
-    const btn = document.getElementById("tvSymbolBtn");
-    const hint = document.getElementById("tvSymbolHint");
-    if (!input || !btn) return;
-
-    // 입력값에서 심볼을 찾아낸다: 1) 이미 "거래소:코드" 형식이면 그대로,
-    // 2) 숫자 코드만 쳤으면 KRX: 붙이기, 3) 종목명이면 워치리스트에서 티커를 찾아 변환
-    function resolveSymbol(raw) {
-      const q = raw.trim();
-      if (!q) return null;
-
-      if (q.includes(":")) return q.toUpperCase();
-      if (/^\d{5,6}$/.test(q)) return `KRX:${q}`;
-
-      const lower = q.toLowerCase();
-      const exact = universeStocks.find((s) => s.name.toLowerCase() === lower);
-      if (exact) return `KRX:${exact.ticker}`;
-
-      const partial = universeStocks.find((s) => s.name.toLowerCase().includes(lower));
-      if (partial) return `KRX:${partial.ticker}`;
-
-      return null;
-    }
-
-    const apply = () => {
-      const raw = input.value;
-      const symbol = resolveSymbol(raw);
-
-      if (!symbol) {
-        if (hint) {
-          hint.textContent = `"${raw}"를 찾을 수 없어요. 워치리스트(시총 상위 300) 밖 종목이면 이름 검색이 안 될 수 있어요 — 이 경우 "거래소:코드"(예: KRX:005930)로 직접 입력해주세요.`;
-          hint.style.color = "var(--up)";
-        }
-        return;
-      }
-
-      input.value = symbol;
-      if (hint) {
-        hint.textContent = "자동으로 안 맞으면 여기서 직접 심볼을 검색·수정할 수 있어요. 종목명(한글)이나 코드, \"거래소:코드\" 형식 모두 입력 가능해요.";
-        hint.style.color = "";
-      }
-      drawTradingView(symbol);
-    };
-
-    btn.addEventListener("click", apply);
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") apply();
-    });
   }
 
   function flatLine(labels, value) {
@@ -342,6 +273,8 @@
     }
 
     drawVolumeChart(history, labels);
+    drawMacdChart(history);
+    drawRsiChart(history);
   }
 
   function drawCandlestickOverlay(history, info) {
@@ -390,6 +323,29 @@
       },
     ];
 
+    if (history.ma112?.some((v) => v !== null)) {
+      datasets.push({
+        label: "MA112",
+        type: "line",
+        data: toXY(history.dates, history.ma112),
+        borderColor: "#c084fc",
+        borderWidth: 1.5,
+        pointRadius: 0,
+        tension: 0.15,
+      });
+    }
+    if (history.ma224?.some((v) => v !== null)) {
+      datasets.push({
+        label: "MA224",
+        type: "line",
+        data: toXY(history.dates, history.ma224),
+        borderColor: "#60a5fa",
+        borderWidth: 1.5,
+        pointRadius: 0,
+        tension: 0.15,
+      });
+    }
+
     if (info?.buy_point) {
       datasets.push({
         label: "매수타점",
@@ -424,13 +380,56 @@
       });
     }
 
+    if (history.signal_markers?.length) {
+      const priceByDate = Object.fromEntries(history.dates.map((d, i) => [d, { l: history.low[i], h: history.high[i] }]));
+
+      const buyMarkers = history.signal_markers
+        .filter((m) => m.type === "buy")
+        .map((m) => ({ x: new Date(m.date).valueOf(), y: priceByDate[m.date].l * 0.985, label: m.label }));
+      const sellMarkers = history.signal_markers
+        .filter((m) => m.type === "sell")
+        .map((m) => ({ x: new Date(m.date).valueOf(), y: priceByDate[m.date].h * 1.015, label: m.label }));
+
+      if (buyMarkers.length) {
+        datasets.push({
+          label: "매수신호",
+          type: "scatter",
+          data: buyMarkers,
+          pointStyle: "triangle",
+          rotation: 0,
+          radius: 6,
+          backgroundColor: "#e5484d",
+          borderColor: "#e5484d",
+        });
+      }
+      if (sellMarkers.length) {
+        datasets.push({
+          label: "매도신호",
+          type: "scatter",
+          data: sellMarkers,
+          pointStyle: "triangle",
+          rotation: 180,
+          radius: 6,
+          backgroundColor: "#3b82f6",
+          borderColor: "#3b82f6",
+        });
+      }
+    }
+
     new Chart(document.getElementById("priceChart"), {
       type: "candlestick",
       data: { datasets },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => (ctx.raw?.label ? ctx.raw.label : ctx.dataset.label),
+            },
+          },
+        },
         scales: {
           x: {
             type: "time",
@@ -548,6 +547,113 @@
         scales: {
           x: { ticks: { display: false }, grid: { display: false } },
           y: { ticks: { color: "#7c869c" }, grid: { color: "#182137" } },
+        },
+      },
+    });
+  }
+
+  function drawMacdChart(history) {
+    const macdXY = toXY(history.dates, history.macd);
+    const signalXY = toXY(history.dates, history.macd_signal);
+    const histData = history.dates.map((d, i) => {
+      const m = history.macd[i], s = history.macd_signal[i];
+      const diff = m !== null && s !== null ? m - s : null;
+      return { x: new Date(d).valueOf(), y: diff };
+    });
+
+    new Chart(document.getElementById("macdChart"), {
+      type: "bar",
+      data: {
+        datasets: [
+          {
+            label: "히스토그램",
+            type: "bar",
+            data: histData,
+            backgroundColor: histData.map((p) => (p.y >= 0 ? "#e5484d66" : "#3b82f666")),
+          },
+          {
+            label: "MACD",
+            type: "line",
+            data: macdXY,
+            borderColor: "#f0b64d",
+            borderWidth: 1.5,
+            pointRadius: 0,
+            tension: 0.1,
+          },
+          {
+            label: "시그널",
+            type: "line",
+            data: signalXY,
+            borderColor: "#8b93a7",
+            borderWidth: 1.5,
+            pointRadius: 0,
+            tension: 0.1,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: {
+            type: "time",
+            time: { unit: "week" },
+            ticks: { color: "#7c869c", maxTicksLimit: 8 },
+            grid: { color: "#182137" },
+          },
+          y: { ticks: { color: "#7c869c" }, grid: { color: "#182137" } },
+        },
+      },
+    });
+  }
+
+  function drawRsiChart(history) {
+    const rsiXY = toXY(history.dates, history.rsi);
+    const refLine = (value) => history.dates.map((d) => ({ x: new Date(d).valueOf(), y: value }));
+
+    new Chart(document.getElementById("rsiChart"), {
+      type: "line",
+      data: {
+        datasets: [
+          {
+            label: "RSI",
+            data: rsiXY,
+            borderColor: "#f0b64d",
+            borderWidth: 1.5,
+            pointRadius: 0,
+            tension: 0.1,
+          },
+          {
+            label: "과매수(70)",
+            data: refLine(70),
+            borderColor: "#e5484d55",
+            borderWidth: 1,
+            borderDash: [4, 4],
+            pointRadius: 0,
+          },
+          {
+            label: "과매도(30)",
+            data: refLine(30),
+            borderColor: "#3b82f655",
+            borderWidth: 1,
+            borderDash: [4, 4],
+            pointRadius: 0,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: {
+            type: "time",
+            time: { unit: "week" },
+            ticks: { color: "#7c869c", maxTicksLimit: 8 },
+            grid: { color: "#182137" },
+          },
+          y: { min: 0, max: 100, ticks: { color: "#7c869c" }, grid: { color: "#182137" } },
         },
       },
     });

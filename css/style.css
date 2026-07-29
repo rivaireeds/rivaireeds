@@ -388,6 +388,8 @@ body {
   font-weight: 600;
 }
 .chart-wrap { position: relative; height: 340px; }
+.chart-wrap.main { height: 520px; }
+.chart-wrap.sub { height: 150px; }
 .chart-wrap.volume { height: 120px; }
 
 .legend-row {

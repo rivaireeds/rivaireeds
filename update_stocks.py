@@ -41,7 +41,7 @@ import requests
 # ----------------------------------------------------------------------------
 CACHE_BASE_URL = "https://raw.githubusercontent.com/FinanceData/fdr_krx_data_cache/refs/heads/master/data/listing/krx"
 
-LOOKBACK_DAYS = 130          # 과거 몇 "달력일"치를 가져올지 (캐시 저장소 시작 시점보다 적게 잡아야 함)
+LOOKBACK_DAYS = 400          # 과거 몇 "달력일"치를 가져올지 (MA224 대비 넉넉하게. 캐시 시작점 이전은 자동으로 조기 중단됨)
 VOLUME_SURGE_RATIO = 2.0     # 거래량 급증 판단 배수
 ZIGZAG_THRESHOLD = 0.08      # ZigZag 스윙 판정 임계값
 FIB_TOLERANCE = 0.02         # 피보나치 레벨 근접 판단 비율
@@ -84,15 +84,29 @@ def build_panel():
     """
     최근 LOOKBACK_DAYS 만큼의 날짜별 스냅샷을 모두 받아서 하나의 DataFrame으로 합친다.
     그다음 주말/공휴일 이월 데이터(직전 거래일과 완전히 동일한 행)를 제거한다.
+
+    LOOKBACK_DAYS는 넉넉하게(MA224까지 대비) 잡혀있지만, GitHub 캐시 저장소 자체가
+    시작된 시점보다 과거로 가면 계속 404만 나오므로, 연속으로 CONSECUTIVE_MISS_LIMIT일치
+    실패하면 "캐시 시작점을 넘어갔다"고 보고 더 이상 요청하지 않고 멈춘다 (실행시간 절약).
     """
     today = datetime.today()
     frames = []
+    consecutive_misses = 0
+    CONSECUTIVE_MISS_LIMIT = 15
 
     for days_back in range(LOOKBACK_DAYS):
         date_obj = today - timedelta(days=days_back)
         df = fetch_daily_snapshot(date_obj)
         if df is not None:
             frames.append(df)
+            consecutive_misses = 0
+        else:
+            consecutive_misses += 1
+            if consecutive_misses >= CONSECUTIVE_MISS_LIMIT:
+                print(f"[{datetime.now()}] {CONSECUTIVE_MISS_LIMIT}일 연속 데이터 없음 "
+                      f"-> 캐시 저장소 시작점을 넘어간 것으로 보고 수집을 중단합니다 "
+                      f"({days_back + 1}일째, {date_obj.strftime('%Y-%m-%d')})")
+                break
 
         if (days_back + 1) % 20 == 0:
             print(f"[{datetime.now()}] 스냅샷 수집 진행: {days_back + 1}/{LOOKBACK_DAYS}일")
@@ -110,8 +124,9 @@ def build_panel():
     ).all(axis=1)
     panel = panel[~is_duplicate].reset_index(drop=True)
 
+    trading_days = panel.groupby("Code").size().max() if len(panel) else 0
     print(f"[{datetime.now()}] 패널 데이터 구성 완료: 종목 {panel['Code'].nunique()}개, "
-          f"총 {len(panel)}행 (중복 이월 제거 후)")
+          f"총 {len(panel)}행 (중복 이월 제거 후), 종목당 최대 거래일수 약 {trading_days}일")
     return panel
 
 
@@ -363,6 +378,42 @@ def compute_rating(score: int, wave_direction, rsi):
     return stars, label
 
 
+def compute_signal_markers(dates, ma5, ma20, ma60, rsi, macd_line, signal_line):
+    """
+    전체 구간에서 매수/매도 신호가 실제로 '발생한 날'들을 찾아 차트 마커 리스트로 반환한다.
+    (지금 시점의 신호가 아니라, 과거에 이 신호들이 어디서 떴었는지를 공부용으로 보여주기 위함)
+
+    - 매수: 정배열전환, RSI과매도탈출(30 상향돌파), MACD골든크로스
+    - 매도: 역배열전환, RSI과매수진입(70 상향돌파), MACD데드크로스
+    """
+    markers = []
+    n = len(dates)
+
+    aligned_up = (ma5 > ma20) & (ma20 > ma60)
+    aligned_down = (ma5 < ma20) & (ma20 < ma60)
+
+    for i in range(1, n):
+        date = dates[i]
+
+        if bool(aligned_up.iloc[i]) and not bool(aligned_up.iloc[i - 1]):
+            markers.append({"date": date, "type": "buy", "label": "정배열전환"})
+        if bool(aligned_down.iloc[i]) and not bool(aligned_down.iloc[i - 1]):
+            markers.append({"date": date, "type": "sell", "label": "역배열전환"})
+
+        if pd.notna(rsi.iloc[i]) and pd.notna(rsi.iloc[i - 1]):
+            if rsi.iloc[i - 1] <= 30 < rsi.iloc[i]:
+                markers.append({"date": date, "type": "buy", "label": "RSI과매도탈출"})
+            if rsi.iloc[i - 1] < 70 <= rsi.iloc[i]:
+                markers.append({"date": date, "type": "sell", "label": "RSI과매수진입"})
+
+        if macd_line.iloc[i - 1] < signal_line.iloc[i - 1] and macd_line.iloc[i] > signal_line.iloc[i]:
+            markers.append({"date": date, "type": "buy", "label": "MACD골든크로스"})
+        if macd_line.iloc[i - 1] > signal_line.iloc[i - 1] and macd_line.iloc[i] < signal_line.iloc[i]:
+            markers.append({"date": date, "type": "sell", "label": "MACD데드크로스"})
+
+    return markers
+
+
 def analyze_stock(group: pd.DataFrame):
     """
     종목 하나의 시계열(Date순 정렬된 DataFrame)을 받아서 신호 리스트와 부가정보를 계산한다.
@@ -373,13 +424,17 @@ def analyze_stock(group: pd.DataFrame):
 
     close = group["Close"].reset_index(drop=True)
     volume = group["Volume"].reset_index(drop=True)
+    dates = group["Date"].reset_index(drop=True)
 
     ma5 = close.rolling(5).mean()
     ma20 = close.rolling(20).mean()
     ma60 = close.rolling(60).mean()
+    ma112 = close.rolling(112).mean()   # 데이터가 112거래일 이상 쌓이기 전까지는 전부 NaN (정상)
+    ma224 = close.rolling(224).mean()   # 데이터가 224거래일 이상 쌓이기 전까지는 전부 NaN (정상)
 
     rsi = calc_rsi(close)
     macd_line, signal_line = calc_macd(close)
+    signal_markers = compute_signal_markers(dates, ma5, ma20, ma60, rsi, macd_line, signal_line)
 
     signals = []
 
@@ -424,7 +479,10 @@ def analyze_stock(group: pd.DataFrame):
         "stop_loss": wave_info.get("stop_loss"),
         "rating_stars": rating_stars,
         "rating_label": rating_label,
-        "ma5": ma5, "ma20": ma20, "ma60": ma60,  # 상세페이지 차트용 (JSON 저장 전에 제거됨)
+        "signal_markers": signal_markers,
+        "ma5": ma5, "ma20": ma20, "ma60": ma60, "ma112": ma112, "ma224": ma224,
+        "rsi_series": rsi, "macd_line": macd_line, "macd_signal": signal_line,
+        # ↑ 전부 상세페이지 차트용 (JSON 저장 전에 analysis_out에서 제거됨)
     }
 
 
@@ -497,11 +555,21 @@ def save_history_json(ticker: str, name: str, market: str, group: pd.DataFrame, 
     OHLCV 이력 + 분석 결과(analysis)를 함께 담아서, 신호 목록(data/signals.json)에
     없는 종목(워치리스트 300종목 등)도 상세페이지에서 바로 조회할 수 있게 한다.
     """
-    ma5, ma20, ma60 = analysis["ma5"], analysis["ma20"], analysis["ma60"]
+    series_keys = ("ma5", "ma20", "ma60", "ma112", "ma224", "rsi_series", "macd_line", "macd_signal")
+    series = {k: analysis.get(k) for k in series_keys}
+    signal_markers = analysis.get("signal_markers", [])
+
     tail = group.tail(HISTORY_DAYS_TO_SAVE).reset_index(drop=True)
     n = len(tail)
+    tail_dates = set(tail["Date"].tolist())
 
-    analysis_out = {k: v for k, v in analysis.items() if k not in ("ma5", "ma20", "ma60")}
+    analysis_out = {k: v for k, v in analysis.items() if k not in series_keys and k != "signal_markers"}
+
+    def series_tail(key, digits=1):
+        s = series.get(key)
+        if s is None:
+            return [None] * n
+        return [None if pd.isna(v) else round(float(v), digits) for v in s.tail(n)]
 
     history = {
         "ticker": ticker,
@@ -509,15 +577,21 @@ def save_history_json(ticker: str, name: str, market: str, group: pd.DataFrame, 
         "market": market,
         "analysis": analysis_out,
         "disclosures": disclosures or [],
+        "signal_markers": [m for m in signal_markers if m["date"] in tail_dates],
         "dates": tail["Date"].tolist(),
         "open": tail["Open"].astype(int).tolist(),
         "high": tail["High"].astype(int).tolist(),
         "low": tail["Low"].astype(int).tolist(),
         "close": tail["Close"].astype(int).tolist(),
         "volume": tail["Volume"].astype(int).tolist(),
-        "ma5": [None if pd.isna(v) else round(float(v), 1) for v in ma5.tail(n)],
-        "ma20": [None if pd.isna(v) else round(float(v), 1) for v in ma20.tail(n)],
-        "ma60": [None if pd.isna(v) else round(float(v), 1) for v in ma60.tail(n)],
+        "ma5": series_tail("ma5"),
+        "ma20": series_tail("ma20"),
+        "ma60": series_tail("ma60"),
+        "ma112": series_tail("ma112"),
+        "ma224": series_tail("ma224"),
+        "rsi": series_tail("rsi_series"),
+        "macd": series_tail("macd_line", digits=2),
+        "macd_signal": series_tail("macd_signal", digits=2),
     }
 
     os.makedirs("data/history", exist_ok=True)
@@ -596,7 +670,9 @@ def main():
             disclosures = fetch_recent_disclosures(corp_code_map[code])
 
         entry = {"ticker": code, "name": name, "market": market, **{
-            k: v for k, v in analysis.items() if k not in ("ma5", "ma20", "ma60")
+            k: v for k, v in analysis.items()
+            if k not in ("ma5", "ma20", "ma60", "ma112", "ma224", "rsi_series",
+                         "macd_line", "macd_signal", "signal_markers")
         }}
 
         universe_stocks.append(entry)
